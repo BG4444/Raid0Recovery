@@ -44,12 +44,7 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
 
     connect(ui->scanButton,&QToolButton::clicked,this,&RecoverWindow::startScanning);
 
-
-    QStorageInfo nfo;
-
-    const auto t=QStorageInfo::mountedVolumes();
-
-    for(const auto&i:t)
+    for(const auto&i:sDetect)
     {
         storeLog(i.displayName());
     }

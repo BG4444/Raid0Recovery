@@ -2,6 +2,7 @@
 #define RECOVERWINDOW_H
 
 #include <QMainWindow>
+#include <storagedetector.h>
 
 class QFileDialog;
 class ImagesList;
@@ -21,6 +22,7 @@ class RecoverWindow : public QMainWindow
     QThreadPool* tpool;
     QProgressBar* pBar;
     ProgressDrawer* drw;
+    StorageDetector sDetect;
 public:
     explicit RecoverWindow(QWidget *parent = 0);
     ~RecoverWindow();

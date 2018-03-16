@@ -30,11 +30,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         recoverwindow.cpp \
-    imageslist.cpp \
     signaturelist.cpp \
     signaturedef.cpp \
     progresssignaler.cpp \
-    progressdrawer.cpp
+    progressdrawer.cpp \
+    imageslist.cpp \
+    storagedetector.cpp
 
 HEADERS += \
         recoverwindow.h \
@@ -42,7 +43,8 @@ HEADERS += \
     signaturelist.h \
     signaturedef.h \
     progresssignaler.h \
-    progressdrawer.h
+    progressdrawer.h \
+    storagedetector.h
 
 FORMS += \
         recoverwindow.ui
