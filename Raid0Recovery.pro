@@ -8,6 +8,10 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+QMAKE_CXXFLAGS+=-std=gnu++17
+
+QMAKE_CXX=g++-7
+
 TARGET = Raid0Recovery
 TEMPLATE = app
 
@@ -25,10 +29,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        recoverwindow.cpp
+        recoverwindow.cpp \
+    imageslist.cpp \
+    signaturelist.cpp \
+    signaturedef.cpp \
+    progresssignaler.cpp \
+    progressdrawer.cpp
 
 HEADERS += \
-        recoverwindow.h
+        recoverwindow.h \
+    imageslist.h \
+    signaturelist.h \
+    signaturedef.h \
+    progresssignaler.h \
+    progressdrawer.h
 
 FORMS += \
         recoverwindow.ui
