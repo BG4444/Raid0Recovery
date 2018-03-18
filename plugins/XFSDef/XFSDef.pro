@@ -24,13 +24,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         xfsdef.cpp \     
     ../../common/progresssignaler.cpp \
-    xfsdetector.cpp
+    xfsdetector.cpp \
+    ../../common/signaturedetectorbase.cpp
 
 HEADERS += \
         xfsdef.h \    
     ../../interfaces/signaturedefinterface.h \
     ../../common/progresssignaler.h \
-    xfsdetector.h
+    xfsdetector.h \
+    ../../common/signaturedetectorbase.h
 
 INCLUDEPATH +=../../interfaces ../../common
 

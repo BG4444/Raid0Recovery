@@ -3,14 +3,17 @@
 
 #include <QtPlugin>
 
+
 class SignatureDetector:public QObject
 {
     Q_OBJECT
+
 signals:
    void found(const uchar* offset);
    void percent(int);
 public:
    virtual void run()=0;
+
 };
 
 class SignatureDefInterface
