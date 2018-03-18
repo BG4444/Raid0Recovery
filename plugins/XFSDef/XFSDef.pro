@@ -1,21 +1,14 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-03-09T09:32:34
+# Project created by QtCreator 2018-03-18T08:36:24
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       -= gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-QMAKE_CXXFLAGS+=-std=gnu++17
-
-QMAKE_CXX=g++-7
-
-TARGET = Raid0Recovery
-TEMPLATE = app
-
-INCLUDEPATH +=../interfaces
+TARGET = XFSDef
+TEMPLATE = lib
+CONFIG +=plugin
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -28,27 +21,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-
 SOURCES += \
-        main.cpp \
-        recoverwindow.cpp \
-    signaturelist.cpp \
-    progressdrawer.cpp \
-    imageslist.cpp \
-    storagedetector.cpp \
-    processing.cpp \
-    imageinfo.cpp
+        xfsdef.cpp \     
+    ../../common/progresssignaler.cpp \
+    xfsdetector.cpp
 
 HEADERS += \
-        recoverwindow.h \
-    imageslist.h \
-    signaturelist.h \
-    progresssignaler.h \
-    progressdrawer.h \
-    storagedetector.h \
-    processing.h \
-    imageinfo.h \
-    ../interfaces/signaturedefinterface.h
+        xfsdef.h \    
+    ../../interfaces/signaturedefinterface.h \
+    ../../common/progresssignaler.h \
+    xfsdetector.h
 
-FORMS += \
-        recoverwindow.ui
+INCLUDEPATH +=../../interfaces ../../common
+
+unix {
+    target.path = /usr/lib
+    INSTALLS += target
+}
+
+DISTFILES += \
+    xfsdef.json

@@ -1,12 +1,11 @@
 #include "imageslist.h"
 #include "processing.h"
-#include "signaturedef.h"
 #include "signaturelist.h"
 
 
 
 
-Processing::Processing(ImagesList *imgs):imgs(imgs)
+Processing::Processing(ImagesList *imgs, const vDetectors& dets):imgs(imgs),dets(dets)
 {
 
 }
@@ -28,15 +27,18 @@ void Processing::run()
                 if(cur->storage->second->tryAcquire())
                 {
                     emit storeLog(QString(tr("%1 drive locked")).arg(i.first.fileName()));
-                    if(cur->nUsedAlgorithms < nAlgorithms && cur->nUsedAlgorithms++ < nAlgorithms )
+
+                    size_t algorithm;
+
+                    if(cur->nUsedAlgorithms < dets.size() && ( algorithm = cur->nUsedAlgorithms++) < dets.size() )
                     {
 
                         emit storeLog(QString(tr("new search started for file %1")).arg(i.first.fileName()));
 
-                        const auto def = new SignatureDef(cur->base,cur->size);
+                        const auto def = dets[algorithm]->make(cur->base,cur->size);
 
-                        connect(def,&SignatureDef::found,cur->signatures,&SignatureList::registerSignature);
-                        connect(def,&SignatureDef::percent,cur,&ImageInfo::setProgress);
+                        connect(def,&SignatureDetector::found,cur->signatures,&SignatureList::registerSignature);
+                        connect(def,&SignatureDetector::percent,cur,&ImageInfo::setProgress);
 
                         def->run();
 

@@ -3,12 +3,14 @@
 
 #include <QMainWindow>
 #include <storagedetector.h>
+#include <processing.h>
 
 class QFileDialog;
 class ImagesList;
 class QThreadPool;
 class QProgressBar;
 class ProgressDrawer;
+
 
 namespace Ui {
 class RecoverWindow;
@@ -23,6 +25,7 @@ class RecoverWindow : public QMainWindow
     QProgressBar* pBar;
     ProgressDrawer* drw;
     StorageDetector sDetect;
+    vDetectors signatureDetectors;
 public:
     explicit RecoverWindow(QWidget *parent = 0);
     ~RecoverWindow();

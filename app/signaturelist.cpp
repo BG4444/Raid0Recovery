@@ -1,5 +1,5 @@
 #include "signaturelist.h"
-#include "signaturedef.h"
+#include "signaturedefinterface.h"
 
 #include <QFile>
 
@@ -26,7 +26,7 @@ QVariant SignatureList::data(const QModelIndex &index, int role) const
 
 void SignatureList::registerSignature(const uchar *offset)
 {
-    const auto def=qobject_cast<SignatureDef*>(sender());
+    const auto def=qobject_cast<SignatureDetector*>(sender());
 
     if(!def)
     {

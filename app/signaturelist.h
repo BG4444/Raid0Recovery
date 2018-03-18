@@ -4,13 +4,13 @@
 #include <QAbstractTableModel>
 
 class QFile;
-class SignatureDef;
+class SignatureDetector;
 
 class SignatureList : public QAbstractTableModel
 {
     Q_OBJECT    
 
-    std::map<const uchar*,SignatureDef*> findings;
+    std::map<const uchar*,SignatureDetector*> findings;
 
 public:
 

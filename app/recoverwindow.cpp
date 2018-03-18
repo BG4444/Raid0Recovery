@@ -7,13 +7,15 @@
 #include <QFileDialog>
 #include <QThreadPool>
 #include <imageslist.h>
-#include <signaturedef.h>
+
 #include <signaturelist.h>
 
 #include <QMessageBox>
+#include <QPluginLoader>
 #include <QProgressBar>
 #include <QStorageInfo>
-#include <progresssignaler.h>
+
+
 
 RecoverWindow::RecoverWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,6 +50,18 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
         storeLog(i.first.displayName());
     }
 
+    QPluginLoader ldr("/home/bg/Projects/Raid0Recovery/plugins/build-XFSDef-qt5_linux-Debug/XFSDef");
+
+
+    const auto t= qobject_cast<SignatureDefInterface*>(ldr.instance());
+
+    if(t)
+    {
+        storeLog(QString(tr("%1 plugin loaded")).arg(ldr.fileName()));
+        signatureDetectors.push_back(t);
+    }
+
+
     storeLog(tr("Ready!"));
 }
 
@@ -64,7 +78,7 @@ void RecoverWindow::startScanning()
 
     for(int i=0;i<ui->totalThreads->value();++i)
     {
-        procs.push_back(new Processing(imgs));
+        procs.push_back(new Processing(imgs,signatureDetectors));
     }
 
     storeLog(tr("tasks created"));

@@ -4,17 +4,20 @@
 #include <QRunnable>
 #include <QObject>
 #include <QEventLoop>
+#include "signaturedefinterface.h"
 
 class ImagesList;
+
+using vDetectors=std::vector<SignatureDefInterface*>;
 
 class Processing :public QObject, public QRunnable
 {
     Q_OBJECT
 
-    static constexpr size_t nAlgorithms=1;
     ImagesList* imgs;
+    const vDetectors& dets;
 public:
-    Processing(ImagesList* imgs);
+    Processing(ImagesList* imgs, const vDetectors& dets);
 
     // QRunnable interface
 public:
