@@ -42,6 +42,8 @@ void Processing::run()
 
                         def->run();
 
+                        def->deleteLater();
+
                         workDone=true;
                         allDone=false;
 
