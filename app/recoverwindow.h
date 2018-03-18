@@ -10,6 +10,7 @@ class ImagesList;
 class QThreadPool;
 class QProgressBar;
 class ProgressDrawer;
+class QSettings;
 
 
 namespace Ui {
@@ -19,6 +20,7 @@ class RecoverWindow;
 class RecoverWindow : public QMainWindow
 {
     Q_OBJECT
+    QSettings* cfg;
     QFileDialog* dlg;
     ImagesList* imgs;
     QThreadPool* tpool;
@@ -26,6 +28,7 @@ class RecoverWindow : public QMainWindow
     ProgressDrawer* drw;
     StorageDetector sDetect;
     vDetectors signatureDetectors;
+
 public:
     explicit RecoverWindow(QWidget *parent = 0);
     ~RecoverWindow();
@@ -34,6 +37,8 @@ private:
     Ui::RecoverWindow *ui;
 public slots:
     void startScanning();
+    void paramChanged();
+    void storeDir(const QString& dir);
 signals:
     void storeLog(const QString& message);
 };

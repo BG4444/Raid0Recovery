@@ -13,28 +13,32 @@
 #include <QMessageBox>
 #include <QPluginLoader>
 #include <QProgressBar>
+#include <QSettings>
 #include <QStorageInfo>
 
 
 
 RecoverWindow::RecoverWindow(QWidget *parent) :
     QMainWindow(parent),
-    dlg(new QFileDialog(this)),
+    dlg(new QFileDialog(this,tr("Open images"),cfg->value("lastDir").toString())),
     imgs(new ImagesList(this,sDetect)),
     tpool(new QThreadPool(this)),
     ui(new Ui::RecoverWindow),
     pBar(new QProgressBar(this)),
-    drw(new ProgressDrawer(this))
+    drw(new ProgressDrawer(this)),
+    cfg(new QSettings(this))
 {
     ui->setupUi(this);
 
     connect(this,&RecoverWindow::storeLog,ui->logStorage,&QPlainTextEdit::appendPlainText);
 
     ui->statusBar->addWidget(pBar);
+
     dlg->setFileMode(QFileDialog::ExistingFiles);
 
     connect(ui->addButton,&QToolButton::clicked,dlg,&QFileDialog::show);
     connect(dlg,&QFileDialog::filesSelected,imgs,&ImagesList::addImages);
+    connect(dlg,&QFileDialog::directoryEntered,this,&RecoverWindow::storeDir);
 
     ui->imagesView->setModel(imgs);
     ui->imagesView->setItemDelegate(drw);
@@ -42,7 +46,8 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
 
     connect(ui->scanButton,&QToolButton::clicked,this,&RecoverWindow::startScanning);
 
-    ui->totalThreads->setValue( QThread::idealThreadCount() );
+
+
 
 
     for(const auto&i:sDetect)
@@ -102,6 +107,18 @@ void RecoverWindow::startScanning()
         tpool->start(i);
     }
 
-     storeLog(tr("tasks started"));
+    storeLog(tr("tasks started"));
+}
+
+void RecoverWindow::paramChanged()
+{
+    const auto ctrl=qobject_cast<QSpinBox*>(sender());
+
+    cfg->setValue(ctrl->objectName(),ctrl->value());
+}
+
+void RecoverWindow::storeDir(const QString &dir)
+{
+    cfg->setValue("lastDir",dir);
 }
 
