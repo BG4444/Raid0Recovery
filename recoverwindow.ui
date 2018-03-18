@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -119,10 +119,24 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSpinBox" name="threadsPerFile"/>
+         <widget class="QSpinBox" name="threadsPerFile">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>999</number>
+          </property>
+         </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="threadsPerDrive"/>
+         <widget class="QSpinBox" name="threadsPerDrive">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>999</number>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <spacer name="verticalSpacer">
@@ -145,7 +159,14 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="totalThreads"/>
+         <widget class="QSpinBox" name="totalThreads">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>999</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

@@ -1,31 +1,29 @@
 #ifndef STORAGEDETECTOR_H
 #define STORAGEDETECTOR_H
 
-#include <set>
+#include <map>
 #include <QStorageInfo>
+#include <algorithm>
+#include <QSemaphore>
+#include <memory>
 
 struct cmpStorages
 {
     bool operator () (const QStorageInfo& a,const QStorageInfo& b);
 };
 
-using storageSet=std::set<QStorageInfo,cmpStorages>;
+using PSemaphore=std::unique_ptr<QSemaphore>;
 
-class StorageDetector:public storageSet
-{
+using storageSet=std::map<QStorageInfo,PSemaphore,cmpStorages>;
+
+class StorageDetector:public QObject,public storageSet
+{    
+    Q_OBJECT
 public:
-    StorageDetector();
-    storageSet::const_iterator detect(const QString& fileName) const
-    {
-        for(auto i=cbegin(); i!= cend(); ++i)
-        {
-            if(fileName.startsWith(i -> displayName()))
-            {
-                return i;
-            }
-        }
-        return cend();
-    }
+    StorageDetector(const int threadCount=4);
+    storageSet::const_iterator detect(const QString& fileName) const;
+public slots:
+    void setThreadCount(const int count);
 };
 
 #endif // STORAGEDETECTOR_H

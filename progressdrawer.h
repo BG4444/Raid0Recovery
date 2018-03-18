@@ -6,7 +6,7 @@
 
 class ProgressDrawer : public QStyledItemDelegate
 {
-      static constexpr size_t progress_offset=3;
+      static constexpr size_t progress_offset=4;
 public:
     ProgressDrawer(QObject* parent);
 

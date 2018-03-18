@@ -22,7 +22,7 @@ void SignatureDef::run()
             j=sign.begin();            
         }                                
         
-        if(base[i]!=*j)
+        if(base[i] != *j)
         {
             if(j!=sign.begin())            
             {

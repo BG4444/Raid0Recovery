@@ -35,7 +35,9 @@ SOURCES += \
     progresssignaler.cpp \
     progressdrawer.cpp \
     imageslist.cpp \
-    storagedetector.cpp
+    storagedetector.cpp \
+    processing.cpp \
+    imageinfo.cpp
 
 HEADERS += \
         recoverwindow.h \
@@ -44,7 +46,9 @@ HEADERS += \
     signaturedef.h \
     progresssignaler.h \
     progressdrawer.h \
-    storagedetector.h
+    storagedetector.h \
+    processing.h \
+    imageinfo.h
 
 FORMS += \
         recoverwindow.ui

@@ -1,40 +1,49 @@
 #ifndef IMAGESLIST_H
 #define IMAGESLIST_H
 
+#include "imageinfo.h"
+
 #include <QAbstractTableModel>
 #include <QFile>
 #include <map>
 #include <vector>
+#include <storagedetector.h>
+#include <memory>
+#include <QMutex>
 
 class SignatureList;
 
-class ImagesList : public QAbstractTableModel
+struct cmpFiles
+{
+    bool operator () (const QFile& a,const QFile& b);
+};
+
+
+using Filemap=std::map<QFile, ImageInfo*, cmpFiles>;
+
+
+using Fileindex=std::vector<Filemap::const_iterator>;
+
+
+class ImagesList : public QAbstractTableModel, public Filemap
 {
     Q_OBJECT
 
+    const StorageDetector& sDetect;
+    size_t threadCount;
 
-    struct cmpFiles
-    {
-        bool operator () (const QFile& a,const QFile& b);
-    };
-
-    using Filemap=std::map<QFile,SignatureList*,cmpFiles>;
-    using Fileindex=std::vector<Filemap::const_iterator>;
-
-    Filemap images;
     Fileindex imagesIndex;
     size_t nRows;
 
 public:
-    ImagesList(QObject* parent);
+    ImagesList(QObject* parent, const StorageDetector& sDetect);
 
-    SignatureList* operator[] (int row) const
-    {
-        return imagesIndex[row]->second;
-    }
+    const SignatureList* operator[] (int row) const;
 
 public slots:
     void addImages(const QStringList& files);
+    void setThreadCount(const int count);
+    void progressChanged();
 
     // QAbstractItemModel interface
 public:

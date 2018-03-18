@@ -1,4 +1,5 @@
 #include "imageslist.h"
+#include "processing.h"
 #include "progressdrawer.h"
 #include "recoverwindow.h"
 #include "ui_recoverwindow.h"
@@ -9,8 +10,6 @@
 #include <signaturedef.h>
 #include <signaturelist.h>
 
-
-
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QStorageInfo>
@@ -19,7 +18,7 @@
 RecoverWindow::RecoverWindow(QWidget *parent) :
     QMainWindow(parent),
     dlg(new QFileDialog(this)),
-    imgs(new ImagesList(this)),
+    imgs(new ImagesList(this,sDetect)),
     tpool(new QThreadPool(this)),
     ui(new Ui::RecoverWindow),
     pBar(new QProgressBar(this)),
@@ -39,14 +38,14 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
     ui->imagesView->setItemDelegate(drw);
 
 
-    tpool->setMaxThreadCount(1);
-
-
     connect(ui->scanButton,&QToolButton::clicked,this,&RecoverWindow::startScanning);
+
+    ui->totalThreads->setValue( QThread::idealThreadCount() );
+
 
     for(const auto&i:sDetect)
     {
-        storeLog(i.displayName());
+        storeLog(i.first.displayName());
     }
 
     storeLog(tr("Ready!"));
@@ -59,18 +58,36 @@ RecoverWindow::~RecoverWindow()
 
 void RecoverWindow::startScanning()
 {
-    const auto rows = ui->imagesView->selectionModel()->selectedRows();
+    std::vector<Processing*> procs;
 
-    for(const auto& i:rows)
+    procs.reserve(ui->totalThreads->value());
+
+    for(int i=0;i<ui->totalThreads->value();++i)
     {
-        const auto t=(*imgs)[i.row()];
-
-        const auto def = new SignatureDef(t->base,t->size);
-
-        connect(def,&SignatureDef::found,t,&SignatureList::registerSignature);
-        connect(def,&SignatureDef::percent,pBar,&QProgressBar::setValue);
-
-        tpool->start(def);
+        procs.push_back(new Processing(imgs));
     }
+
+    storeLog(tr("tasks created"));
+
+    for(const auto&i:procs)
+    {
+        connect(i,&Processing::storeLog,this,&RecoverWindow::storeLog,Qt::QueuedConnection);
+        for(const auto&j:procs)
+        {
+            if(i!=j)
+            {
+                connect(i,&Processing::taskReleased,j,&Processing::onTaskRelease,Qt::QueuedConnection);
+            }
+        }
+    }
+
+    storeLog(tr("tasks connected"));
+
+    for(const auto&i:procs)
+    {
+        tpool->start(i);
+    }
+
+     storeLog(tr("tasks started"));
 }
 

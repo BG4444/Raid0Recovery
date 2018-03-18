@@ -15,7 +15,7 @@ void ProgressDrawer::paint(QPainter *painter, const QStyleOptionViewItem &option
 
            QStyleOptionProgressBar progressBarOption;
 
-           progressBarOption.progress = 66;
+           progressBarOption.progress = progress;
 
            progressBarOption.rect = option.rect;
            progressBarOption.minimum = 0;

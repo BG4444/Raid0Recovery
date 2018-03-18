@@ -3,9 +3,7 @@
 
 #include <QFile>
 
-SignatureList::SignatureList(QFile *parent):QAbstractTableModel(parent),
-    size(parent->size()),
-    base(parent->map(0,size))
+SignatureList::SignatureList(QFile *parent):QAbstractTableModel(parent)
 {
 
 }
@@ -24,11 +22,6 @@ int SignatureList::columnCount(const QModelIndex &) const
 QVariant SignatureList::data(const QModelIndex &index, int role) const
 {
     return QVariant();
-}
-
-bool SignatureList::isMapped() const
-{
-    return base;
 }
 
 void SignatureList::registerSignature(const uchar *offset)
