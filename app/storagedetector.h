@@ -20,7 +20,7 @@ class StorageDetector:public QObject,public storageSet
 {    
     Q_OBJECT
 public:
-    StorageDetector(const int threadCount=4);
+    StorageDetector(const int threadCount=1);
     storageSet::const_iterator detect(const QString& fileName) const;
 public slots:
     void setThreadCount(const int count);

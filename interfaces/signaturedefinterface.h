@@ -10,7 +10,7 @@ class SignatureDetector:public QObject
 
 signals:
    void found(const uchar* offset);
-   void percent(int);
+   void percent(int percent);
 public:
    virtual void run()=0;
 

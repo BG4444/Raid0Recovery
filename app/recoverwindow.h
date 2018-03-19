@@ -11,7 +11,7 @@ class QThreadPool;
 class QProgressBar;
 class ProgressDrawer;
 class QSettings;
-
+class QSpinBox;
 
 namespace Ui {
 class RecoverWindow;
@@ -28,6 +28,10 @@ class RecoverWindow : public QMainWindow
     ProgressDrawer* drw;
     StorageDetector sDetect;
     vDetectors signatureDetectors;
+
+    void loadSpinBoxSetting(QSpinBox* box,const int defValue);
+
+    void loadPlugins();
 
 public:
     explicit RecoverWindow(QWidget *parent = 0);

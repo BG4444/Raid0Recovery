@@ -1,7 +1,9 @@
 #include "imageslist.h"
 #include "signaturelist.h"
 
-ImagesList::ImagesList(QObject* parent, const StorageDetector &sDetect):QAbstractTableModel(parent),nRows(0),sDetect(sDetect),threadCount(2)
+#include <QPoint>
+
+ImagesList::ImagesList(QObject* parent, const StorageDetector &sDetect):QAbstractTableModel(parent),nRows(0),sDetect(sDetect),threadCount(1)
 {
 
 }
@@ -134,7 +136,7 @@ QVariant ImagesList::data(const QModelIndex &index, int role) const
                         }
                         return QVariant();
                     case 4:
-                        return info->getProgress();
+                        return QPoint(info->getProgress(),info->nUsedAlgorithms);
                     default:
                         return QVariant();
                 }

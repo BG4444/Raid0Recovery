@@ -26,7 +26,9 @@ QVariant SignatureList::data(const QModelIndex &index, int role) const
 
 void SignatureList::registerSignature(const uchar *offset)
 {
-    const auto def=qobject_cast<SignatureDetector*>(sender());
+    const auto s = sender();
+
+    const auto def=dynamic_cast<SignatureDetector*>(s);
 
     if(!def)
     {
