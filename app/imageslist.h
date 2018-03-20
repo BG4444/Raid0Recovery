@@ -42,7 +42,7 @@ public:
 
 public slots:
     void addImages(const QStringList& files);
-    void setThreadCount(const int count);
+    void onSetThreadCount(const int count);
     void progressChanged();
 
     // QAbstractItemModel interface
@@ -50,6 +50,8 @@ public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
+signals:
+    void setThreadCount(const int count);
 };
 
 #endif // IMAGESLIST_H

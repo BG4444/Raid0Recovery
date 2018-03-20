@@ -12,6 +12,7 @@ struct cmpStorages
     bool operator () (const QStorageInfo& a,const QStorageInfo& b);
 };
 
+
 using PSemaphore=std::unique_ptr<QSemaphore>;
 
 using storageSet=std::map<QStorageInfo,PSemaphore,cmpStorages>;

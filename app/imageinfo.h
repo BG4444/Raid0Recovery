@@ -2,6 +2,7 @@
 #define IMAGEINFO_H
 
 #include <QObject>
+#include <QVector>
 
 #include "storagedetector.h"
 
@@ -10,11 +11,11 @@ class SignatureList;
 class ImageInfo : public QObject
 {
     Q_OBJECT   
-    int progress;
+    QVector<int> progress;
+    std::unique_ptr<QSemaphore> sem;
 public:
     SignatureList* signatures;
-    storageSet::const_iterator storage;
-    std::unique_ptr<QSemaphore> sem;
+    storageSet::const_iterator storage;    
     std::atomic<size_t> nUsedAlgorithms;
     quint64 size;
     uchar* base;
@@ -28,12 +29,17 @@ public:
 
 
 
-    int getProgress() const;
+    const QVector<int>& getProgress() const;
+
+    bool tryAcquire();
+
+    void release();
 
 signals:
     void progressChanged();
 public slots:
-   void setProgress(int value);
+   void setProgress(int nAlg,int value);
+   void setThreadCount(int count);
 };
 
 #endif // IMAGEINFO_H

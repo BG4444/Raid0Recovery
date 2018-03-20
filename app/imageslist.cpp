@@ -36,6 +36,7 @@ void ImagesList::addImages(const QStringList &files)
                                                   this
                                                  );
                 connect(insertion.first->second,&ImageInfo::progressChanged,this,&ImagesList::progressChanged);
+                connect(this,&ImagesList::setThreadCount,insertion.first->second,&ImageInfo::setThreadCount);
             }
         }
     }
@@ -67,15 +68,12 @@ void ImagesList::addImages(const QStringList &files)
     }
 }
 
-void ImagesList::setThreadCount(const int count)
-{
+void ImagesList::onSetThreadCount(const int count)
+{    
     if(threadCount!=count)
     {
         threadCount=count;
-        for(auto& i:*this)
-        {
-            i.second->sem.reset(new QSemaphore(count));
-        }
+        emit setThreadCount(count);
     }
 }
 
@@ -136,7 +134,7 @@ QVariant ImagesList::data(const QModelIndex &index, int role) const
                         }
                         return QVariant();
                     case 4:
-                        return QPoint(info->getProgress(),info->nUsedAlgorithms);
+                        return QVariant(reinterpret_cast<qulonglong>(&info->getProgress()));
                     default:
                         return QVariant();
                 }

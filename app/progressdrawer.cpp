@@ -11,32 +11,29 @@ void ProgressDrawer::paint(QPainter *painter, const QStyleOptionViewItem &option
 {
     if (index.column() == progress_offset)
     {       
+
+           const auto& vProgress=*reinterpret_cast<QVector<int>*>(index.data().toULongLong());
+
+           const auto width=option.rect.width()/vProgress.size();
+
            QStyleOptionProgressBar progressBarOption;
 
-
            progressBarOption.textVisible = true;
-
+           progressBarOption.minimum = 0;
+           progressBarOption.maximum = 100;
            progressBarOption.rect = option.rect;
 
+           progressBarOption.rect.setWidth(width);
+
+           for(const auto& i:vProgress)
 
            {
-               progressBarOption.minimum = 0;
-               progressBarOption.maximum = 100;
-               progressBarOption.rect.setWidth(option.rect.width()/2);
-               progressBarOption.progress = index.data().toPoint().x();
+               progressBarOption.progress = i;
                progressBarOption.text = QString::number(progressBarOption.progress).append('%');
 
                QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
-           }
+               progressBarOption.rect.translate(width,0);
 
-           {
-               progressBarOption.minimum = 0;
-               progressBarOption.maximum = 2;
-               progressBarOption.rect.translate(option.rect.width()/2,0);
-               progressBarOption.progress = index.data().toPoint().y();
-               progressBarOption.text = QString::number(progressBarOption.progress).append('%');
-
-               QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
            }
 
      }

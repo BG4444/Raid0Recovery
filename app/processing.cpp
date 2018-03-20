@@ -21,7 +21,7 @@ void Processing::run()
         {
             ImageInfo* cur=i.second;
             bool workDone=false;
-            if(cur->sem->tryAcquire())
+            if(cur->tryAcquire())
             {
                 emit storeLog(QString(tr("%1 file locked")).arg(i.first.fileName()));
                 if(cur->storage->second->tryAcquire())
@@ -38,7 +38,12 @@ void Processing::run()
                         const auto def = dets[algorithm]->make(cur->base,cur->size);
 
                         connect(def,&SignatureDetector::found,cur->signatures,&SignatureList::registerSignature);
-                        connect(def,&SignatureDetector::percent,cur,&ImageInfo::setProgress);
+
+                        connect(def,&SignatureDetector::percent,[cur,algorithm](const int percent)
+                                                                {
+                                                                    cur->setProgress(algorithm, percent);
+                                                                }
+                               );
 
                         def->run();
 
@@ -58,7 +63,7 @@ void Processing::run()
                     haveLocked=true;
                 }
 
-                cur->sem->release();
+                cur->release();
                 emit storeLog(QString(tr("%1 file unlocked")).arg(i.first.fileName()));
 
                 if(workDone)

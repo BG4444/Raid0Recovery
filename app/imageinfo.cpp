@@ -1,14 +1,29 @@
 #include "imageinfo.h"
 
-void ImageInfo::setProgress(int value)
+void ImageInfo::setProgress(int nAlg, int value)
 {
-    progress = value;
+    progress[nAlg] = value;
     emit progressChanged();
 }
 
-int ImageInfo::getProgress() const
+void ImageInfo::setThreadCount(int count)
+{
+    sem.reset(new QSemaphore(count));
+}
+
+const QVector<int> &ImageInfo::getProgress() const
 {
     return progress;
+}
+
+bool ImageInfo::tryAcquire()
+{
+    return sem->tryAcquire();
+}
+
+void ImageInfo::release()
+{
+    sem->release();
 }
 
 ImageInfo::ImageInfo(SignatureList *signatures,
@@ -19,7 +34,7 @@ ImageInfo::ImageInfo(SignatureList *signatures,
                      QObject *parent)
     :
       QObject(parent),
-      progress(0),
+      progress(threadCount,0),
       signatures(signatures),
       storage(storage),
       sem(new QSemaphore(threadCount)),
