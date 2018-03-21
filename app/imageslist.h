@@ -34,9 +34,9 @@ class ImagesList : public QAbstractTableModel, public Filemap
 
     Fileindex imagesIndex;
     size_t nRows;
-
+    const size_t countOfAlg;
 public:
-    ImagesList(QObject* parent, const StorageDetector& sDetect);
+    ImagesList(QObject* parent, const StorageDetector& sDetect,const size_t countOfAlg);
 
     const SignatureList* operator[] (int row) const;
 
@@ -44,6 +44,7 @@ public slots:
     void addImages(const QStringList& files);
     void onSetThreadCount(const int count);
     void progressChanged();
+    void onFindingsUpdated();
 
     // QAbstractItemModel interface
 public:

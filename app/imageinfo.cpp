@@ -9,6 +9,9 @@ void ImageInfo::setProgress(int nAlg, int value)
 void ImageInfo::setThreadCount(int count)
 {
     sem.reset(new QSemaphore(count));
+    progress.resize(count);
+    std::fill(progress.begin(),progress.end(),0);
+    emit progressChanged();
 }
 
 const QVector<int> &ImageInfo::getProgress() const

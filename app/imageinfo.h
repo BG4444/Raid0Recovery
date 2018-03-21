@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <atomic>
 
 #include "storagedetector.h"
 

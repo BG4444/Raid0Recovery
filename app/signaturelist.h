@@ -27,6 +27,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const;   
 public slots:
     void registerSignature(const uchar* offset);
+signals:
+    void findinsUpdated(const SignatureDetector* det);
 };
 
 #endif // SIGNATURELIST_H

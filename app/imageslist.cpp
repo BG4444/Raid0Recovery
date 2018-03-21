@@ -3,7 +3,7 @@
 
 #include <QPoint>
 
-ImagesList::ImagesList(QObject* parent, const StorageDetector &sDetect):QAbstractTableModel(parent),nRows(0),sDetect(sDetect),threadCount(1)
+ImagesList::ImagesList(QObject* parent, const StorageDetector &sDetect,const size_t countOfAlg):QAbstractTableModel(parent),nRows(0),sDetect(sDetect),threadCount(1),countOfAlg(countOfAlg)
 {
 
 }
@@ -27,8 +27,9 @@ void ImagesList::addImages(const QStringList &files)
             const auto cur=const_cast<QFile*>(&(insertion.first->first));
             if(cur->open(QFile::ReadOnly))
             {
+                const auto lst=new SignatureList(cur);
                 insertion.first->second=new ImageInfo
-                                                 (new SignatureList(cur),
+                                                 (lst,
                                                   sDetect.detect(cur->fileName()),
                                                   threadCount,
                                                   cur->size(),
@@ -37,6 +38,7 @@ void ImagesList::addImages(const QStringList &files)
                                                  );
                 connect(insertion.first->second,&ImageInfo::progressChanged,this,&ImagesList::progressChanged);
                 connect(this,&ImagesList::setThreadCount,insertion.first->second,&ImageInfo::setThreadCount);
+
             }
         }
     }
@@ -89,6 +91,11 @@ void ImagesList::progressChanged()
     }
 }
 
+void ImagesList::onFindingsUpdated()
+{
+
+}
+
 
 int ImagesList::rowCount(const QModelIndex &) const
 {
@@ -97,7 +104,7 @@ int ImagesList::rowCount(const QModelIndex &) const
 
 int ImagesList::columnCount(const QModelIndex &) const
 {
-    return 4 + 1;
+    return 4 + 1 + countOfAlg;
 }
 
 QVariant ImagesList::data(const QModelIndex &index, int role) const

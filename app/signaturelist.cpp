@@ -43,4 +43,5 @@ void SignatureList::registerSignature(const uchar *offset)
     }
 
     findings.insert(std::make_pair(offset,def));
+    emit findinsUpdated(def);
 }

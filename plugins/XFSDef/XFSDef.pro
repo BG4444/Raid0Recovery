@@ -10,7 +10,7 @@ TARGET = XFSDef
 TEMPLATE = lib
 CONFIG +=plugin
 
-DESTDIR = $$PWD/../../bin/plugins
+DESTDIR = $$PWD/../../bin_$$QT_VERSION_$$MAKEFILE_GENERATOR/plugins
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings

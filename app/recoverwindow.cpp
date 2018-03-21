@@ -59,7 +59,7 @@ void RecoverWindow::loadPlugins()
 RecoverWindow::RecoverWindow(QWidget *parent) :
     QMainWindow(parent),
     dlg(new QFileDialog(this,tr("Open images"),cfg->value("lastDir").toString())),
-    imgs(new ImagesList(this,sDetect)),
+
     tpool(new QThreadPool(this)),
     ui(new Ui::RecoverWindow),
     pBar(new QProgressBar(this)),
@@ -69,6 +69,10 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ASSERT(connect(this,&RecoverWindow::storeLog,ui->logStorage,&QPlainTextEdit::appendPlainText));
+
+    loadPlugins();
+
+    imgs=new ImagesList(this,sDetect,signatureDetectors.size());
 
     ui->statusBar->addWidget(pBar);
 
@@ -86,7 +90,7 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
                    &sDetect, &StorageDetector::setThreadCount);
     connect(ui->threadsPerFile,
                    static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-                   imgs, &ImagesList::setThreadCount);
+                   imgs, &ImagesList::onSetThreadCount);
 
     loadSpinBoxSetting(ui->totalThreads,QThread::idealThreadCount());
     loadSpinBoxSetting(ui->threadsPerDrive,1);
@@ -104,7 +108,7 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
         storeLog(i.first.displayName());
     }
 
-    loadPlugins();
+
 
     storeLog(tr("Ready!"));
 }

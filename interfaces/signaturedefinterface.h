@@ -20,7 +20,7 @@ class SignatureDefInterface
 {
 public:
    virtual SignatureDetector* make(uchar* offset, quint64 size) = 0;
-   virtual ~SignatureDefInterface()=0;
+   virtual ~SignatureDefInterface(){};
 };
 
 
