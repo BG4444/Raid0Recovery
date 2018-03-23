@@ -1,7 +1,8 @@
 #include "signaturedetectorbase.h"
 #include "progresssignaler.h"
 
-SignatureDetectorBase::SignatureDetectorBase(const uchar *base, const quint64 size,const std::vector<uchar>& sign):
+SignatureDetectorBase::SignatureDetectorBase(const SignatureDefInterface* parent, const uchar *base, const quint64 size,const std::vector<uchar>& sign):
+    SignatureDetector(parent),
     base(base),
     size(size),
     sign(sign),

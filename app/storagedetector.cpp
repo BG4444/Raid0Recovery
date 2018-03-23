@@ -21,7 +21,7 @@ StorageDetector::StorageDetector(const int threadCount)
 
 storageSet::const_iterator StorageDetector::detect(const QString &fileName) const
 {
-    return std::find_if(cbegin(),cend(), [fileName](const std::pair<const QStorageInfo&,const PSemaphore&> &nfo)
+    return std::find_if(cbegin(),cend(), [fileName]( const storageSet::value_type &nfo)
     {
         return fileName.startsWith(nfo.first.displayName());
     }

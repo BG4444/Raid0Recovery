@@ -43,6 +43,8 @@ public slots:
     void startScanning();
     void paramChanged();
     void storeDir(const QString& dir);
+    void updateProgressMaximum();
+    void store();
 signals:
     void storeLog(const QString& message);
 };

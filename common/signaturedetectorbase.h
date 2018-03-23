@@ -13,7 +13,7 @@ class SignatureDetectorBase:public SignatureDetector
     const uchar* base;
     const quint64 size;
 public:
-    SignatureDetectorBase(const uchar *base, const quint64 size,const std::vector<uchar>& sign);
+    SignatureDetectorBase(const SignatureDefInterface *parent, const uchar *base, const quint64 size, const std::vector<uchar>& sign);
     void search();
     virtual void onFound(const uchar* offset);
 };

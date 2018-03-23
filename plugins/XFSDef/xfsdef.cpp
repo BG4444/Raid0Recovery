@@ -3,5 +3,5 @@
 
 SignatureDetector *XFSDef::make(uchar *offset, quint64 size)
 {
-    return new XFSDetector(offset,size);
+    return new XFSDetector( this, offset,size);
 }

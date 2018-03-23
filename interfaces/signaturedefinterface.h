@@ -3,17 +3,21 @@
 
 #include <QtPlugin>
 
+class SignatureDefInterface;
 
 class SignatureDetector:public QObject
 {
-    Q_OBJECT
-
+    Q_OBJECT    
 signals:
    void found(const uchar* offset);
    void percent(int percent);
 public:
+   const SignatureDefInterface* parent;
    virtual void run()=0;
+   SignatureDetector(const SignatureDefInterface* parent):parent(parent)
+   {
 
+   }
 };
 
 class SignatureDefInterface
@@ -23,6 +27,7 @@ public:
    virtual ~SignatureDefInterface(){};
 };
 
+using vDetectors=std::vector<SignatureDefInterface*>;
 
 #define SignatureDefInterface_iid "com.github.bg4444.SignatureDefInterface"
 

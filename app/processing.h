@@ -8,8 +8,6 @@
 
 class ImagesList;
 
-using vDetectors=std::vector<SignatureDefInterface*>;
-
 class Processing :public QObject, public QRunnable
 {
     Q_OBJECT

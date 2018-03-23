@@ -3,7 +3,13 @@
 
 #include <QPoint>
 
-ImagesList::ImagesList(QObject* parent, const StorageDetector &sDetect,const size_t countOfAlg):QAbstractTableModel(parent),nRows(0),sDetect(sDetect),threadCount(1),countOfAlg(countOfAlg)
+
+ImagesList::ImagesList(QObject* parent, const StorageDetector &sDetect, const vDetectors &vDetect):
+    QAbstractTableModel(parent),
+    sDetect(sDetect),
+    vDetect(vDetect),
+    threadCount(1),
+    nRows(0)
 {
 
 }
@@ -36,8 +42,12 @@ void ImagesList::addImages(const QStringList &files)
                                                   cur->map(0,cur->size()),
                                                   this
                                                  );
-                connect(insertion.first->second,&ImageInfo::progressChanged,this,&ImagesList::progressChanged);
+
+                connect(insertion.first->second,&ImageInfo::progressChanged,this,&ImagesList::onProgressChanged);
+
                 connect(this,&ImagesList::setThreadCount,insertion.first->second,&ImageInfo::setThreadCount);
+
+                connect(lst,&SignatureList::findinsUpdated, this, &ImagesList::onFindingsUpdated );
 
             }
         }
@@ -79,21 +89,54 @@ void ImagesList::onSetThreadCount(const int count)
     }
 }
 
-void ImagesList::progressChanged()
+void ImagesList::updateCellBy(const int col,const std::function<bool(const Fileindex::value_type&)>&& func)
 {
-    for(size_t i=0; i < imagesIndex.size(); ++i)
+    const auto pos=std::find_if(imagesIndex.cbegin(), imagesIndex.cend(), func );
+
+    if(pos==imagesIndex.cend())
     {
-        if(imagesIndex[i]->second==sender())
-        {
-            emit dataChanged(index(i,4),index(i,4),{Qt::DisplayRole});
-            break;
-        }
+        throw InvalidSender();
+    }
+    else
+    {
+        const auto tIdx=index(pos-imagesIndex.cbegin(), col);
+        emit dataChanged(tIdx,tIdx,{Qt::DisplayRole});
     }
 }
 
-void ImagesList::onFindingsUpdated()
+void ImagesList::onProgressChanged()
 {
+    const auto& det=sender();
+    updateCellBy(4, [det](const Fileindex::value_type& cur )
+                            {
+                                return cur->second==det;
+                            }
+                        );
+    int ret=0;
+    for (const auto&i:*this)
+    {
+        for(const auto&j: i.second->getProgress())
+        {
+            ret+=j;
+        }
+    }
+    emit ProgressChanged(ret);
+}
 
+void ImagesList::onFindingsUpdated(const SignatureDefInterface* det)
+{
+    const auto snd= dynamic_cast<SignatureList*>(sender());
+
+    if (!snd)
+    {
+
+    }
+
+    updateCellBy( 5 + std::find(vDetect.begin(),vDetect.end(),det) - vDetect.begin(), [snd](const Fileindex::value_type& cur)
+                            {
+                                return cur->second->signatures==snd;
+                            }
+                );
 }
 
 
@@ -104,7 +147,7 @@ int ImagesList::rowCount(const QModelIndex &) const
 
 int ImagesList::columnCount(const QModelIndex &) const
 {
-    return 4 + 1 + countOfAlg;
+    return 4 + 1 + vDetect.size();
 }
 
 QVariant ImagesList::data(const QModelIndex &index, int role) const
@@ -141,9 +184,16 @@ QVariant ImagesList::data(const QModelIndex &index, int role) const
                         }
                         return QVariant();
                     case 4:
-                        return QVariant(reinterpret_cast<qulonglong>(&info->getProgress()));
+                        return QVariant(reinterpret_cast<qulonglong>(&info->getProgress()));                    
                     default:
-                        return QVariant();
+                        {
+                            const int col=index.column() - 5;
+                            if(col >= 0 && col < vDetect.size() )
+                            {
+                                 return QVariant(static_cast<qulonglong>(info->signatures->countOfFindings(vDetect[col])));
+                            }
+                            return QVariant();
+                        }
                 }
             }
             return QVariant();
@@ -155,4 +205,13 @@ QVariant ImagesList::data(const QModelIndex &index, int role) const
 bool cmpFiles::operator ()(const QFile &a, const QFile &b)
 {
     return a.fileName() < b.fileName();
+}
+
+QDataStream &operator <<(QDataStream &dev, const ImagesList &lst)
+{
+    for(const auto&i:lst)
+    {
+        dev << i.first.fileName()  <<*i.second->signatures;
+    }
+    return dev;
 }

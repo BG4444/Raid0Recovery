@@ -7,9 +7,10 @@
 class XFSDetector : public SignatureDetectorBase
 {
 public:
-    XFSDetector(const uchar* base, const quint64 size);
+    XFSDetector(const SignatureDefInterface* parent,const uchar* base, const quint64 size);
 public:
     void run();
 };
 
 #endif // XFSDETECTOR_H
+

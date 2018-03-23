@@ -1,12 +1,12 @@
 #include "xfsdetector.h"
 
 
-XFSDetector::XFSDetector(const uchar *base, const quint64 size):SignatureDetectorBase(base,size,{'X','F','S','B'})
+XFSDetector::XFSDetector(const SignatureDefInterface* parent, const uchar *base, const quint64 size):
+                SignatureDetectorBase(parent,base,size,{'X','F','S','B'})
 
 {
 
 }
-
 
 void XFSDetector::run()
 {

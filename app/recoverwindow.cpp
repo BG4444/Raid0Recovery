@@ -58,13 +58,12 @@ void RecoverWindow::loadPlugins()
 
 RecoverWindow::RecoverWindow(QWidget *parent) :
     QMainWindow(parent),
-    dlg(new QFileDialog(this,tr("Open images"),cfg->value("lastDir").toString())),
-
+    cfg(new QSettings(this)),
+    dlg(new QFileDialog(this,tr("Open images"),cfg->value("lastDir").toString())),       
     tpool(new QThreadPool(this)),
-    ui(new Ui::RecoverWindow),
     pBar(new QProgressBar(this)),
     drw(new ProgressDrawer(this)),
-    cfg(new QSettings(this))
+    ui(new Ui::RecoverWindow)
 {
     ui->setupUi(this);
 
@@ -72,9 +71,13 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
 
     loadPlugins();
 
-    imgs=new ImagesList(this,sDetect,signatureDetectors.size());
+    imgs=new ImagesList(this,sDetect,signatureDetectors);
+
 
     ui->statusBar->addWidget(pBar);
+
+    connect(imgs,&ImagesList::ProgressChanged,pBar,&QProgressBar::setValue);
+    connect(imgs,&ImagesList::rowsInserted,this,&RecoverWindow::updateProgressMaximum);
 
 
     //обвязка файлового диалога
@@ -95,6 +98,8 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
     loadSpinBoxSetting(ui->totalThreads,QThread::idealThreadCount());
     loadSpinBoxSetting(ui->threadsPerDrive,1);
     loadSpinBoxSetting(ui->threadsPerFile,1);
+
+
 
 
     ui->imagesView->setModel(imgs);
@@ -159,11 +164,28 @@ void RecoverWindow::paramChanged()
 
     ASSERT(ctrl);
 
-    cfg->setValue(ctrl->objectName(),ctrl->value());
+    cfg->setValue(ctrl->objectName(),ctrl->value());  
+    updateProgressMaximum();
 }
 
 void RecoverWindow::storeDir(const QString &dir)
 {
     cfg->setValue("lastDir",dir);
+}
+
+void RecoverWindow::updateProgressMaximum()
+{
+    pBar->setMaximum(100 * signatureDetectors.size() * imgs->rowCount(QModelIndex()) );
+}
+
+void RecoverWindow::store()
+{
+    QFile out("out.r0r");
+
+    out.open(QFile::WriteOnly);
+
+    QDataStream str(&out);
+
+    str<<*imgs;
 }
 

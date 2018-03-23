@@ -38,9 +38,9 @@ ImageInfo::ImageInfo(SignatureList *signatures,
     :
       QObject(parent),
       progress(threadCount,0),
+      sem(new QSemaphore(threadCount)),
       signatures(signatures),
       storage(storage),
-      sem(new QSemaphore(threadCount)),
       nUsedAlgorithms(0),
       size(size),
       base(base)
