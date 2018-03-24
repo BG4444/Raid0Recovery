@@ -16,7 +16,7 @@
 #include <QSettings>
 #include <QStorageInfo>
 #include <QSpinBox>
-
+#include <QMetaClassInfo>
 #include "macroses.h"
 
 void RecoverWindow::loadSpinBoxSetting(QSpinBox *box, const int defValue)
@@ -41,17 +41,19 @@ void RecoverWindow::loadPlugins()
 
     const auto& dirs=dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::Files);
 
-    for(const auto&i: dirs)
+    for(size_t i=0;i!=dirs.size();++i)
     {
 
-        QPluginLoader ldr(i.absoluteFilePath());
+        QPluginLoader* ldr=new QPluginLoader(dirs[i].absoluteFilePath());
 
-        const auto t= qobject_cast<SignatureDefInterface*>(ldr.instance());
+        const QObject* obj=ldr->instance();
+
+        const auto t= qobject_cast<SignatureDefInterface*>(obj);
 
         if(t)
         {
-            storeLog(QString(tr("%1 plugin loaded")).arg(i.fileName()));
-            signatureDetectors.push_back(t);
+            storeLog(QString(tr("%1 plugin loaded")).arg(dirs[i].fileName()));
+            signatureDetectors.insert(std::make_pair(ldr,i));
         }
     }
 }
@@ -107,6 +109,8 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
 
 
     connect(ui->scanButton,&QToolButton::clicked,this,&RecoverWindow::startScanning);
+
+    connect(ui->storeButton,&QToolButton::clicked,this,&RecoverWindow::store);
 
     for(const auto&i:sDetect)
     {

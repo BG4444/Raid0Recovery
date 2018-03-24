@@ -12,6 +12,7 @@
 #include <QMutex>
 #include <functional>
 #include <signaturedefinterface.h>
+#include "vdetectors.h"
 
 class SignatureList;
 
@@ -57,6 +58,7 @@ public:
 signals:
     void setThreadCount(const int count);
     void ProgressChanged(const int value);
+    friend QDataStream &operator <<(QDataStream &dev, const ImagesList& lst);
 };
 
 QDataStream &operator <<(QDataStream &dev, const ImagesList& lst);

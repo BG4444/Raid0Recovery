@@ -35,7 +35,10 @@ void Processing::run()
 
                         emit storeLog(QString(tr("new search started for file %1")).arg(i.first.fileName()));
 
-                        const auto def = dets[algorithm]->make(cur->base,cur->size);
+
+
+
+                        const auto def =  qobject_cast<SignatureDefInterface*> (dets[algorithm] ->instance()) ->make(cur->base,cur->size);
 
                         connect(def,&SignatureDetector::found,cur->signatures,&SignatureList::registerSignature);
 

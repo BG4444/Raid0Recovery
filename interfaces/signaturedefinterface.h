@@ -2,6 +2,7 @@
 #define SIGNATUREDEFINTRFACE_H
 
 #include <QtPlugin>
+#include <set>
 
 class SignatureDefInterface;
 
@@ -26,8 +27,6 @@ public:
    virtual SignatureDetector* make(uchar* offset, quint64 size) = 0;
    virtual ~SignatureDefInterface(){};
 };
-
-using vDetectors=std::vector<SignatureDefInterface*>;
 
 #define SignatureDefInterface_iid "com.github.bg4444.SignatureDefInterface"
 

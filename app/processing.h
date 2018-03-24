@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QEventLoop>
 #include "signaturedefinterface.h"
+#include "vdetectors.h"
 
 class ImagesList;
 

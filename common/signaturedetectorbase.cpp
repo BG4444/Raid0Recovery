@@ -3,10 +3,12 @@
 
 SignatureDetectorBase::SignatureDetectorBase(const SignatureDefInterface* parent, const uchar *base, const quint64 size,const std::vector<uchar>& sign):
     SignatureDetector(parent),
-    base(base),
-    size(size),
     sign(sign),
-    sgn(ProgressSignaler::make(size,this))
+    sgn(ProgressSignaler::make(size,this)),
+    base(base),
+    size(size)
+
+
 {
     connect(sgn,&ProgressSignaler::percent, this, &SignatureDetectorBase::percent);
 }

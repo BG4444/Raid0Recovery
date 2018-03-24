@@ -33,7 +33,7 @@ void ImagesList::addImages(const QStringList &files)
             const auto cur=const_cast<QFile*>(&(insertion.first->first));
             if(cur->open(QFile::ReadOnly))
             {
-                const auto lst=new SignatureList(cur);
+                const auto lst=new SignatureList(cur,vDetect);
                 insertion.first->second=new ImageInfo
                                                  (lst,
                                                   sDetect.detect(cur->fileName()),
@@ -132,7 +132,18 @@ void ImagesList::onFindingsUpdated(const SignatureDefInterface* det)
 
     }
 
-    updateCellBy( 5 + std::find(vDetect.begin(),vDetect.end(),det) - vDetect.begin(), [snd](const Fileindex::value_type& cur)
+    int col= 5;
+
+    for(const auto& i:vDetect)
+    {
+        if(qobject_cast<SignatureDefInterface*>(i.first->instance())==det)
+        {
+            break;
+        }
+        ++col;
+    }
+
+    updateCellBy(col , [snd](const Fileindex::value_type& cur)
                             {
                                 return cur->second->signatures==snd;
                             }
@@ -187,10 +198,16 @@ QVariant ImagesList::data(const QModelIndex &index, int role) const
                         return QVariant(reinterpret_cast<qulonglong>(&info->getProgress()));                    
                     default:
                         {
-                            const int col=index.column() - 5;
-                            if(col >= 0 && col < vDetect.size() )
+                            const size_t col=index.column() - 5;
+                            if( col < vDetect.size() )
                             {
-                                 return QVariant(static_cast<qulonglong>(info->signatures->countOfFindings(vDetect[col])));
+                                 return QVariant(static_cast<qulonglong>
+                                                 (
+                                                     info->signatures->countOfFindings(
+                                                                vDetect[col]
+                                                                                      )
+                                                 )
+                                                );
                             }
                             return QVariant();
                         }
@@ -209,6 +226,12 @@ bool cmpFiles::operator ()(const QFile &a, const QFile &b)
 
 QDataStream &operator <<(QDataStream &dev, const ImagesList &lst)
 {
+    for(const auto&i:lst.vDetect)
+    {
+        const QPluginLoader* plg=i.first;
+        dev << plg->metaData().find("className").value().toString();
+    }
+
     for(const auto&i:lst)
     {
         dev << i.first.fileName()  <<*i.second->signatures;
