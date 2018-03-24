@@ -8,7 +8,12 @@ XFSDetector::XFSDetector(const SignatureDefInterface* parent, const uchar *base,
 
 }
 
-void XFSDetector::run()
+void XFSDetector::run(const std::atomic<bool>& stopper)
 {
-    search();
+    search(stopper);
+}
+
+
+void XFSDetector::build()
+{
 }

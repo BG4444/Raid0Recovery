@@ -13,11 +13,11 @@ SignatureDetectorBase::SignatureDetectorBase(const SignatureDefInterface* parent
     connect(sgn,&ProgressSignaler::percent, this, &SignatureDetectorBase::percent);
 }
 
-void SignatureDetectorBase::search()
+void SignatureDetectorBase::search(const std::atomic<bool> &stopper)
 {
     auto j=sign.begin();
 
-    for(quint64 i=0; i < size; ++i)
+    for(quint64 i=0; i < size && stopper; ++i)
     {
         if(j==sign.end())
         {

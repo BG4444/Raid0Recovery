@@ -14,45 +14,68 @@ ImagesList::ImagesList(QObject* parent, const StorageDetector &sDetect, const vD
 
 }
 
-const SignatureList *ImagesList::operator[](int row) const
+SignatureList *ImagesList::operator[](int row) const
 {
-    return imagesIndex[row]->second->signatures;
+    return imagesIndex[row]->second->signatures.get();
+}
+
+int ImagesList::findSignatureList(const SignatureList *lst) const
+{
+    return std::find_if(imagesIndex.begin(),imagesIndex.end(), [lst](const Fileindex::value_type& cur)
+    {
+        return cur->second->signatures.get()==lst;
+    }
+                )-imagesIndex.begin();
+}
+
+QByteArray ImagesList::glue(const Glue& glue,const quint64 sector_size, const quint64 offset)
+{
+    QByteArray ret(glue.size()*sector_size,0);
+
+    auto pos=ret.begin();
+
+    for(const auto& i:glue)
+    {
+        const auto beg=imagesIndex[i]->second->base + offset;
+        const auto en =beg+sector_size;
+        std::copy(beg,en,pos);
+    }
+
+    return ret;
 }
 
 
-void ImagesList::addImages(const QStringList &files)
+Filemap::const_iterator ImagesList::insFile(const QString& fName)
 {
-    nRows=size();
-
-    for(const auto& i:files)
+    const auto insertion=emplace(fName, nullptr );
+    if(insertion.second)
     {
-        const auto insertion=emplace(i, nullptr );
-
-        if(insertion.second)
+        const auto cur=const_cast<QFile*>(&(insertion.first->first));
+        if(cur->open(QFile::ReadOnly))
         {
-            const auto cur=const_cast<QFile*>(&(insertion.first->first));
-            if(cur->open(QFile::ReadOnly))
-            {
-                const auto lst=new SignatureList(cur,vDetect);
-                insertion.first->second=new ImageInfo
-                                                 (lst,
-                                                  sDetect.detect(cur->fileName()),
-                                                  threadCount,
-                                                  cur->size(),
-                                                  cur->map(0,cur->size()),
-                                                  this
-                                                 );
+            const auto base=cur->map(0,cur->size());
+            const auto lst=new SignatureList(this,vDetect,base,cur->size());
+            insertion.first->second.reset(new ImageInfo
+                                             (lst,
+                                              sDetect.detect(cur->fileName()),
+                                              threadCount,
+                                              cur->size(),
+                                              base,
+                                              this
+                                             ));
 
-                connect(insertion.first->second,&ImageInfo::progressChanged,this,&ImagesList::onProgressChanged);
+            connect(insertion.first->second.get(),&ImageInfo::progressChanged,this,&ImagesList::onProgressChanged);
 
-                connect(this,&ImagesList::setThreadCount,insertion.first->second,&ImageInfo::setThreadCount);
+            connect(this,&ImagesList::setThreadCount,insertion.first->second.get(),&ImageInfo::setThreadCount);
 
-                connect(lst,&SignatureList::findinsUpdated, this, &ImagesList::onFindingsUpdated );
-
-            }
+            connect(lst,&SignatureList::findinsUpdated, this, &ImagesList::onFindingsUpdated );
         }
     }
+    return insertion.first;
+}
 
+void ImagesList::reindexRows()
+{
     if(nRows!=size())
     {
         Fileindex t_index;
@@ -78,6 +101,18 @@ void ImagesList::addImages(const QStringList &files)
         }
         imagesIndex.swap(t_index);
     }
+}
+
+void ImagesList::addImages(const QStringList &files)
+{
+    nRows=size();
+
+    for(const auto& i:files)
+    {        
+        insFile(i);
+    }
+
+    reindexRows();
 }
 
 void ImagesList::onSetThreadCount(const int count)
@@ -109,7 +144,7 @@ void ImagesList::onProgressChanged()
     const auto& det=sender();
     updateCellBy(4, [det](const Fileindex::value_type& cur )
                             {
-                                return cur->second==det;
+                                return cur->second.get()==det;
                             }
                         );
     int ret=0;
@@ -145,7 +180,7 @@ void ImagesList::onFindingsUpdated(const SignatureDefInterface* det)
 
     updateCellBy(col , [snd](const Fileindex::value_type& cur)
                             {
-                                return cur->second->signatures==snd;
+                                return cur->second->signatures.get()==snd;
                             }
                 );
 }
@@ -219,6 +254,32 @@ QVariant ImagesList::data(const QModelIndex &index, int role) const
     }
 }
 
+QVariant ImagesList::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    switch(role)
+    {
+        case Qt::DisplayRole:
+            if(orientation==Qt::Vertical)
+            {
+                return 1+section;
+            }
+            if(section>=0 && section <5)
+            {
+                const auto names={
+                                    tr("Image Name"),
+                                    tr("Size"),
+                                    tr("Mapped"),
+                                    tr("Drive"),
+                                    tr("Progress")
+                                 };
+                return *(names.begin()+section);
+            }
+            return vDetect[section-5]->metaData().find("className").value().toString();
+        default:
+            return QAbstractTableModel::headerData(section,orientation,role);
+    }
+}
+
 bool cmpFiles::operator ()(const QFile &a, const QFile &b)
 {
     return a.fileName() < b.fileName();
@@ -226,15 +287,97 @@ bool cmpFiles::operator ()(const QFile &a, const QFile &b)
 
 QDataStream &operator <<(QDataStream &dev, const ImagesList &lst)
 {
-    for(const auto&i:lst.vDetect)
+    dev << static_cast<qulonglong>(lst.vDetect.size());
+
+    for(size_t i=0;i < lst.vDetect.size();++i)
     {
-        const QPluginLoader* plg=i.first;
-        dev << plg->metaData().find("className").value().toString();
+        for(const auto&j:lst.vDetect)
+        {
+            if(j.second==i)
+            {
+                const QPluginLoader* plg=j.first;
+                dev << plg->metaData().find("className").value().toString();
+                break;
+            }
+        }
     }
+
+    dev << static_cast<qulonglong>(lst.size());
 
     for(const auto&i:lst)
     {
         dev << i.first.fileName()  <<*i.second->signatures;
     }
     return dev;
+}
+
+QDataStream &operator >>(QDataStream &dev,  ImagesList &lst)
+{
+    lst.clear();
+    std::map<int, vDetectors::const_iterator > dict;
+
+    {
+        qulonglong sz;
+        dev >> sz;
+
+
+        for(qulonglong i=0;i!=sz;++i)
+        {
+            QString className;
+            dev >> className;
+
+            const auto clPos=std::find_if(lst.vDetect.cbegin(),lst.vDetect.cend(), [&className](const vDetectors::value_type& cur)
+                                                                {
+                                                                    return cur.first->metaData().find("className").value().toString() == className;
+                                                                }
+                        );
+            if(clPos!=lst.vDetect.end())
+            {
+                dict[i]=clPos;
+            }
+        }
+    }
+    {
+        qulonglong sz;
+        dev >> sz;
+
+        for(qulonglong i=0;i!=sz;++i)
+        {
+            QString fName;
+            dev>>fName;
+            auto sigList=lst.insFile(fName);
+                qulonglong cnt;
+                dev>>cnt;
+
+                for(qulonglong j=0;j!=cnt;++j)
+                {
+                    //loading plugin no
+                    int plg;
+                    dev>>plg;
+
+                    //loading offset
+                    qulonglong ptr;
+                    dev>>ptr;
+
+                    const QPluginLoader* ldr=dict[plg]->first;
+
+                    const auto pName=ldr->metaData().find("className").value().toString();
+
+                    sigList->second->signatures-> registerSignature(ldr , ptr );
+                }
+
+        }
+        lst.reindexRows();
+    }
+
+    return dev;
+}
+
+void ImagesList::clear()
+{
+    beginRemoveRows(QModelIndex(),0,rowCount(QModelIndex()));
+    Filemap::clear();
+    imagesIndex.clear();
+    nRows=0;
+    endRemoveRows();
 }

@@ -4,10 +4,9 @@
 #include <QObject>
 #include <QVector>
 #include <atomic>
-
+#include <signaturelist.h>
 #include "storagedetector.h"
 
-class SignatureList;
 
 class ImageInfo : public QObject
 {
@@ -15,7 +14,7 @@ class ImageInfo : public QObject
     QVector<int> progress;
     std::unique_ptr<QSemaphore> sem;
 public:
-    SignatureList* signatures;
+    std::unique_ptr<SignatureList> signatures;
     storageSet::const_iterator storage;    
     std::atomic<size_t> nUsedAlgorithms;
     quint64 size;
@@ -27,7 +26,6 @@ public:
                        quint64 size,
                        uchar* base,
                        QObject *parent);
-
 
 
     const QVector<int>& getProgress() const;

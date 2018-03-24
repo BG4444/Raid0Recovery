@@ -15,8 +15,9 @@ class Processing :public QObject, public QRunnable
 
     ImagesList* imgs;
     const vDetectors& dets;
+    const std::atomic<bool> &stopper;
 public:
-    Processing(ImagesList* imgs, const vDetectors& dets);
+    Processing(ImagesList* imgs, const vDetectors& dets, const std::atomic<bool> &stopper);
 
     // QRunnable interface
 public:

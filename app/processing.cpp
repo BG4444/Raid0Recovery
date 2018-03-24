@@ -5,7 +5,7 @@
 
 
 
-Processing::Processing(ImagesList *imgs, const vDetectors& dets):imgs(imgs),dets(dets)
+Processing::Processing(ImagesList *imgs, const vDetectors& dets,const std::atomic<bool> &stopper):imgs(imgs),dets(dets),stopper(stopper)
 {
 
 }
@@ -19,7 +19,7 @@ void Processing::run()
         bool allDone=true;
         for(auto&i:*imgs)
         {
-            ImageInfo* cur=i.second;
+            const auto& cur=i.second;
             bool workDone=false;
             if(cur->tryAcquire())
             {
@@ -40,15 +40,17 @@ void Processing::run()
 
                         const auto def =  qobject_cast<SignatureDefInterface*> (dets[algorithm] ->instance()) ->make(cur->base,cur->size);
 
-                        connect(def,&SignatureDetector::found,cur->signatures,&SignatureList::registerSignature);
+                        connect(def,&SignatureDetector::found,cur->signatures.get(),static_cast<void (SignatureList::*)(const uchar*)>(&SignatureList::registerSignature));
 
-                        connect(def,&SignatureDetector::percent,[cur,algorithm](const int percent)
+
+
+                        connect(def,&SignatureDetector::percent,[&cur,algorithm](const int percent)
                                                                 {
                                                                     cur->setProgress(algorithm, percent);
                                                                 }
                                );
 
-                        def->run();
+                        def->run(stopper);
 
                         def->deleteLater();
 

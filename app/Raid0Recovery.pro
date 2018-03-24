@@ -47,7 +47,8 @@ SOURCES += \
     storagedetector.cpp \
     processing.cpp \
     imageinfo.cpp \
-    vdetectors.cpp
+    vdetectors.cpp \
+    fileglue.cpp
 
 HEADERS += \
         recoverwindow.h \
@@ -58,7 +59,8 @@ HEADERS += \
     processing.h \
     imageinfo.h \
     ../interfaces/signaturedefinterface.h \
-    vdetectors.h
+    vdetectors.h \
+    fileglue.h
 
 FORMS += \
         recoverwindow.ui

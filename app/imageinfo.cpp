@@ -47,3 +47,4 @@ ImageInfo::ImageInfo(SignatureList *signatures,
 {
 
 }
+

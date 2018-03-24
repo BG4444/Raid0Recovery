@@ -41,10 +41,10 @@ void RecoverWindow::loadPlugins()
 
     const auto& dirs=dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::Files);
 
-    for(size_t i=0;i!=dirs.size();++i)
+    for(int i=0;i!=dirs.size();++i)
     {
 
-        QPluginLoader* ldr=new QPluginLoader(dirs[i].absoluteFilePath());
+        QPluginLoader* ldr=new QPluginLoader(dirs[i].absoluteFilePath(),this);
 
         const QObject* obj=ldr->instance();
 
@@ -107,10 +107,17 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
     ui->imagesView->setModel(imgs);
     ui->imagesView->setItemDelegate(drw);
 
+    connect(ui->imagesView,&QTableView::clicked,this,&RecoverWindow::tableClicked);
+
 
     connect(ui->scanButton,&QToolButton::clicked,this,&RecoverWindow::startScanning);
 
     connect(ui->storeButton,&QToolButton::clicked,this,&RecoverWindow::store);
+    connect(ui->loadButton,&QToolButton::clicked,this,&RecoverWindow::load);
+    connect(ui->clearButton,&QToolButton::clicked,imgs,&ImagesList::clear);
+    connect(ui->buildButton,&QToolButton::clicked,this,&RecoverWindow::build);
+
+
 
     for(const auto&i:sDetect)
     {
@@ -127,15 +134,16 @@ RecoverWindow::~RecoverWindow()
     delete ui;
 }
 
-void RecoverWindow::startScanning()
+void RecoverWindow::doScan()
 {
+    stopper=true;
     std::vector<Processing*> procs;
 
     procs.reserve(ui->totalThreads->value());
 
     for(int i=0;i<ui->totalThreads->value();++i)
     {
-        procs.push_back(new Processing(imgs,signatureDetectors));
+        procs.push_back(new Processing(imgs,signatureDetectors, stopper));
     }
 
     storeLog(tr("tasks created"));
@@ -160,6 +168,23 @@ void RecoverWindow::startScanning()
     }
 
     storeLog(tr("tasks started"));
+}
+
+void RecoverWindow::doStop()
+{
+    stopper=false;
+}
+
+void RecoverWindow::startScanning(const bool toggle)
+{
+    if(toggle)
+    {
+        doScan();
+    }
+    else
+    {
+        doStop();
+    }
 }
 
 void RecoverWindow::paramChanged()
@@ -191,5 +216,36 @@ void RecoverWindow::store()
     QDataStream str(&out);
 
     str<<*imgs;
+}
+
+void RecoverWindow::load()
+{
+    QFile in("out.r0r");
+
+    in.open(QFile::ReadOnly);
+
+    QDataStream str(&in);
+
+    str>>*imgs;
+}
+
+void RecoverWindow::tableClicked(const QModelIndex &idx)
+{
+    ui->findingsView->setModel((*imgs)[idx.row()]);
+}
+
+void RecoverWindow::build()
+{
+    const auto rows=ui->findingsView->selectionModel()->selectedRows();
+
+    if(rows.size()==1)
+    {
+        auto lst=qobject_cast<const SignatureList*>(rows[0].model());
+
+        if(lst)
+        {
+            lst->build( rows[0].row());
+        }
+    }
 }
 

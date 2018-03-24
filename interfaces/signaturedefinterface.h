@@ -12,9 +12,11 @@ class SignatureDetector:public QObject
 signals:
    void found(const uchar* offset);
    void percent(int percent);
+   void storeLog(const QString& msg);
 public:
    const SignatureDefInterface* parent;
-   virtual void run()=0;
+   virtual void run(const std::atomic<bool>& stopper)=0;
+   virtual QByteArray build()=0;
    SignatureDetector(const SignatureDefInterface* parent):parent(parent)
    {
 
@@ -24,7 +26,7 @@ public:
 class SignatureDefInterface
 {
 public:
-   virtual SignatureDetector* make(uchar* offset, quint64 size) = 0;
+   virtual SignatureDetector* make(const uchar* offset,const  quint64 size) = 0;
    virtual ~SignatureDefInterface(){};
 };
 

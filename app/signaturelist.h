@@ -10,6 +10,7 @@
 
 class QFile;
 class SignatureDetector;
+class ImagesList;
 
 class SignatureList : public QAbstractTableModel
 {
@@ -23,25 +24,31 @@ class SignatureList : public QAbstractTableModel
 
     const QPluginLoader* instanceByInterface(const SignatureDefInterface* det);
 
+    const uchar* base;
+
+    const quint64 size;
+
+    Findings::const_iterator roll(const QModelIndex& index) const;
+
 public:
 
     class excWrongSender{};
     class excDuplicateAddress{};
 
-    SignatureList(QFile* parent,const vDetectors& vDet);
+    SignatureList(QObject *parent, const vDetectors& vDet, const uchar* base, const u_int64_t size);
 
 public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;   
     size_t countOfFindings(const QPluginLoader *det);
-
+    void build(const int rowFindingsList) const;
 public slots:
     void registerSignature(const uchar* offset);
+    void registerSignature(const QPluginLoader* plg, qulonglong ptr);
 signals:
     void findinsUpdated(const SignatureDefInterface* det);
     friend QDataStream&operator <<( QDataStream &dev, const SignatureList& lst);
-
 };
 
 QDataStream& operator <<( QDataStream &dev, const SignatureList& lst);

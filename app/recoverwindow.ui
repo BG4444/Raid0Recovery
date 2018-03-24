@@ -40,7 +40,38 @@
         <property name="spacing">
          <number>0</number>
         </property>
-        <item row="2" column="0" colspan="4">
+        <item row="0" column="4">
+         <widget class="QToolButton" name="loadButton">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QToolButton" name="scanButton">
+          <property name="text">
+           <string>Scan</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QToolButton" name="storeButton">
+          <property name="text">
+           <string>Store</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QToolButton" name="addButton">
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="8">
          <widget class="QFrame" name="frame">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -77,30 +108,30 @@
                <enum>QAbstractItemView::SelectRows</enum>
               </property>
              </widget>
-             <widget class="QTableView" name="tableView"/>
+             <widget class="QTableView" name="findingsView">
+              <property name="selectionMode">
+               <enum>QAbstractItemView::MultiSelection</enum>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+             </widget>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QToolButton" name="scanButton">
-          <property name="text">
-           <string>Scan</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
-         <widget class="QToolButton" name="addButton">
+         <widget class="QToolButton" name="clearButton">
           <property name="text">
-           <string>Add</string>
+           <string>Clear</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <widget class="QToolButton" name="storeButton">
+        <item row="0" column="5">
+         <widget class="QToolButton" name="buildButton">
           <property name="text">
-           <string>Store</string>
+           <string>Build</string>
           </property>
          </widget>
         </item>
