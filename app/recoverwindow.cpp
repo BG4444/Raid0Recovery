@@ -254,7 +254,7 @@ void RecoverWindow::build()
         {
             if(!glue.get())
             {
-                glue.reset( new FileGlue(imgs->size(),{imgs->findSignatureList(lst)}));
+                glue.reset( new FileGlue(imgs->size(),{static_cast<size_t>(imgs->findSignatureList(lst))}));
             }
 
             QString str;
