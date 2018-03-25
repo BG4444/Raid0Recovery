@@ -13,7 +13,6 @@ void XFSDetector::run(const std::atomic<bool>& stopper)
     search(stopper);
 }
 
-
-void XFSDetector::build()
+void XFSDetector::build(QWidget *parent, const qulonglong stripeSize)
 {
 }

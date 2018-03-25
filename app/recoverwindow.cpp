@@ -116,8 +116,10 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
     connect(ui->loadButton,&QToolButton::clicked,this,&RecoverWindow::load);
     connect(ui->clearButton,&QToolButton::clicked,imgs,&ImagesList::clear);
     connect(ui->buildButton,&QToolButton::clicked,this,&RecoverWindow::build);
+    connect(ui->rollButton,&QToolButton::clicked,this,&RecoverWindow::roll);
+    connect(ui->fixButton,&QToolButton::clicked,this,&RecoverWindow::fix);
 
-
+    connect(this,&RecoverWindow::doBuild,this,&RecoverWindow::build,Qt::QueuedConnection);
 
     for(const auto&i:sDetect)
     {
@@ -240,14 +242,54 @@ void RecoverWindow::build()
 
     ui->tabWidget->setCurrentIndex(1);
 
+
+
+
+
     if(rows.size()==1)
     {
         auto lst=qobject_cast<const SignatureList*>(rows[0].model());
 
         if(lst)
         {
-            lst->build( rows[0].row(),ui->buildTab);
+            if(!glue.get())
+            {
+                glue.reset( new FileGlue(imgs->size(),{imgs->findSignatureList(lst)}));
+            }
+
+            QString str;
+            for(const auto&i:glue->insertPersistent())
+            {
+                str+=QString::number(i)+' ';
+            }
+            storeLog(str);
+
+            lst->build( rows[0].row(),ui->buildWidget,*glue.get());
         }
+    }
+}
+
+void RecoverWindow::roll()
+{
+    if(glue.get())
+    {
+        glue->ror();
+    }
+    const auto chld=ui->buildWidget->children();
+    for(const auto& i:chld)
+    {
+        i->deleteLater();
+    }
+    emit doBuild();
+}
+
+void RecoverWindow::fix()
+{
+    if(const auto oldGlue=glue.get())
+    {
+        const auto newPersistent=oldGlue->fix();
+
+        glue.reset(new FileGlue(imgs->size(),newPersistent));
     }
 }
 

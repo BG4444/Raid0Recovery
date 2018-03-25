@@ -1,6 +1,8 @@
 #ifndef RECOVERWINDOW_H
 #define RECOVERWINDOW_H
 
+#include "fileglue.h"
+
 #include <QMainWindow>
 #include <storagedetector.h>
 #include <processing.h>
@@ -29,6 +31,8 @@ class RecoverWindow : public QMainWindow
     StorageDetector sDetect;
     vDetectors signatureDetectors;
 
+    std::unique_ptr<FileGlue> glue;
+
     void loadSpinBoxSetting(QSpinBox* box,const int defValue);
 
     void loadPlugins();
@@ -52,7 +56,10 @@ public slots:
     void load();
     void tableClicked(const QModelIndex& idx);
     void build();
+    void roll();
+    void fix();
 signals:
+    void doBuild();
     void storeLog(const QString& message);
 };
 

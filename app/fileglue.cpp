@@ -1,5 +1,7 @@
 #include "fileglue.h"
 #include <set>
+#include <algorithm>
+
 
 void FileGlue::inc(Glue::iterator pos)
 {
@@ -14,25 +16,26 @@ void FileGlue::inc(Glue::iterator pos)
     }
 }
 
-FileGlue::FileGlue(const size_t countOfImages, const size_t startPosition):Glue(countOfImages-1),startPosition(startPosition)
+FileGlue::FileGlue(const size_t countOfImages, const Glue& persistentPart):persistentPart(persistentPart)
 {
-    for(size_t i=0;i<size();++i)
+    for(size_t i=0;i<countOfImages ;++i)
     {
-        (*this)[i]=i;
+        const auto fnd=std::find(persistentPart.cbegin(),persistentPart.cend(),i);
+
+        if(fnd==persistentPart.cend())
+        {
+            push_back(i);
+        }
     }
 }
 
-Glue FileGlue::insertPersistent()
+Glue FileGlue::insertPersistent() const
 {
     Glue ret;
-    ret.reserve(size()+1);
 
-    ret.push_back(startPosition);
+    ret.insert(ret.end(),persistentPart.cbegin(),persistentPart.cend());
+    ret.insert(ret.end(),begin(),end());
 
-    for(const auto& i:*this)
-    {
-        ret.push_back( i>=startPosition ? 1+i : i );
-    }
     return ret;
 }
 
@@ -47,6 +50,27 @@ void FileGlue::operator ++()
             break;
         }
     }
+}
+
+void FileGlue::ror()
+{
+    if(empty())
+    {
+        return;
+    }
+    const auto t=(*this)[0];
+    erase(begin(),begin()+1);
+    push_back(t);
+}
+
+Glue FileGlue::fix() const
+{
+    Glue ret;
+
+    ret.insert(ret.end(),persistentPart.cbegin(),persistentPart.cend());
+    ret.insert(ret.end(),begin(),begin()+1);
+
+    return ret;
 }
 
 std::ostream &operator <<(std::ostream &str, const Glue &glue)

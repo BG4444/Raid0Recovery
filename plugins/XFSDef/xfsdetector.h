@@ -13,7 +13,11 @@ public:
 
     // SignatureDetector interface
 public:
-    void build();
+
+
+    // SignatureDetector interface
+public:
+    void build(QWidget *parent, const qulonglong stripeSize);
 };
 
 #endif // XFSDETECTOR_H

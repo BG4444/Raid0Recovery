@@ -5,6 +5,7 @@
 #include <QIODevice>
 #include <signaturedefinterface.h>
 #include <QPluginLoader>
+#include "fileglue.h"
 #include "vdetectors.h"
 #include <QDataStream>
 
@@ -35,14 +36,14 @@ public:
     class excWrongSender{};
     class excDuplicateAddress{};
 
-    SignatureList(QObject *parent, const vDetectors& vDet, const uchar* base, const u_int64_t size);
+    SignatureList(QObject *parent, const vDetectors& vDet, const uchar* base, const uint64_t size);
 
 public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;   
     size_t countOfFindings(const QPluginLoader *det);
-    void build(const int rowFindingsList, QWidget *buildTab) const;
+    void build(const int rowFindingsList, QWidget *buildTab,const FileGlue& glue) const;
 public slots:
     void registerSignature(const uchar* offset);
     void registerSignature(const QPluginLoader* plg, qulonglong ptr);

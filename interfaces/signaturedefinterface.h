@@ -3,6 +3,7 @@
 
 #include <QtPlugin>
 #include <set>
+#include <atomic>
 
 class SignatureDefInterface;
 
@@ -16,7 +17,7 @@ signals:
 public:
    const SignatureDefInterface* parent;
    virtual void run(const std::atomic<bool>& stopper)=0;
-   virtual void build(QWidget* parent)=0;
+   virtual void build(QWidget* parent, const qulonglong stripeSize)=0;
    SignatureDetector(const SignatureDefInterface* parent):parent(parent)
    {
 
