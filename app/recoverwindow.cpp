@@ -238,13 +238,15 @@ void RecoverWindow::build()
 {
     const auto rows=ui->findingsView->selectionModel()->selectedRows();
 
+    ui->tabWidget->setCurrentIndex(1);
+
     if(rows.size()==1)
     {
         auto lst=qobject_cast<const SignatureList*>(rows[0].model());
 
         if(lst)
         {
-            lst->build( rows[0].row());
+            lst->build( rows[0].row(),ui->buildTab);
         }
     }
 }

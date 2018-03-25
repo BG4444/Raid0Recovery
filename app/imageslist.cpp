@@ -38,7 +38,8 @@ QByteArray ImagesList::glue(const Glue& glue,const quint64 sector_size, const qu
     {
         const auto beg=imagesIndex[i]->second->base + offset;
         const auto en =beg+sector_size;
-        std::copy(beg,en,pos);
+        pos=std::copy(beg,en,pos);
+
     }
 
     return ret;

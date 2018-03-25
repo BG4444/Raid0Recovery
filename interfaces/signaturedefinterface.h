@@ -16,7 +16,7 @@ signals:
 public:
    const SignatureDefInterface* parent;
    virtual void run(const std::atomic<bool>& stopper)=0;
-   virtual QByteArray build()=0;
+   virtual void build(QWidget* parent)=0;
    SignatureDetector(const SignatureDefInterface* parent):parent(parent)
    {
 

@@ -78,7 +78,7 @@ size_t SignatureList::countOfFindings(const QPluginLoader *det)
     return findings.count(det);
 }
 
-void SignatureList::build( const int rowFindingsList) const
+void SignatureList::build( const int rowFindingsList, QWidget* buildTab) const
 {
     auto pos=roll(index(rowFindingsList,0));
 
@@ -89,12 +89,13 @@ void SignatureList::build( const int rowFindingsList) const
     const auto imgs=qobject_cast<ImagesList*>(parent());
 
     FileGlue glue(imgs->size(),imgs->findSignatureList(this));
+    const auto g=glue.insertPersistent();
 
-    const auto& gluedData= imgs->glue(glue.insertPersistent(), 4096, pos->second - base);
+    const auto& gluedData= imgs->glue(g, 8192*4, pos->second - base);
 
     const auto oper=face->make(reinterpret_cast<const uchar*>(gluedData.data()), gluedData.size() );
 
-    oper->build();
+    oper->build(buildTab);
 }
 
 

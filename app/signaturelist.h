@@ -42,7 +42,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;   
     size_t countOfFindings(const QPluginLoader *det);
-    void build(const int rowFindingsList) const;
+    void build(const int rowFindingsList, QWidget *buildTab) const;
 public slots:
     void registerSignature(const uchar* offset);
     void registerSignature(const QPluginLoader* plg, qulonglong ptr);
