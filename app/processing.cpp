@@ -1,7 +1,7 @@
 #include "imageslist.h"
 #include "processing.h"
 #include "signaturelist.h"
-
+#include <QThread>
 
 
 
@@ -47,10 +47,26 @@ void Processing::run()
                         connect(def,&SignatureDetector::percent,[&cur,algorithm](const int percent)
                                                                 {
                                                                     cur->setProgress(algorithm, percent);
-                                                                }
-                               );
+                                                                }                          );
 
-                        def->run(stopper);
+                        for(size_t j=0;j!=100;++j)
+                        {
+                            try
+                            {
+                                def->run(stopper);
+                            }
+                            catch(std::exception& ex)
+                            {
+                                storeLog(tr("task failed with exception, num retries %1 what is %2").arg(j).arg(ex.what()));
+                                QThread::sleep(1);
+                            }
+                            catch(...)
+                            {
+                                storeLog(tr("task failed with exception, num retries %1").arg(j));
+                                QThread::sleep(1);
+                            }
+
+                        }
 
                         def->deleteLater();
 
