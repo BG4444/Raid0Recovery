@@ -49,7 +49,8 @@ SOURCES += \
     processing.cpp \
     imageinfo.cpp \
     vdetectors.cpp \
-    fileglue.cpp
+    fileglue.cpp \
+    raid0recoveryapp.cpp
 
 HEADERS += \
         recoverwindow.h \
@@ -61,7 +62,8 @@ HEADERS += \
     imageinfo.h \
     ../interfaces/signaturedefinterface.h \
     vdetectors.h \
-    fileglue.h
+    fileglue.h \
+    raid0recoveryapp.h
 
 FORMS += \
         recoverwindow.ui

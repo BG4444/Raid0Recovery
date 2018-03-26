@@ -1,9 +1,9 @@
 #include "recoverwindow.h"
-#include <QApplication>
+#include "raid0recoveryapp.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    Raid0RecoveryApp a(argc, argv);
     RecoverWindow w;
     w.showMaximized();
 

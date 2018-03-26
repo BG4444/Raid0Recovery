@@ -34,7 +34,7 @@ int SignatureList::columnCount(const QModelIndex &) const
 SignatureList::Findings::const_iterator SignatureList::roll(const QModelIndex& index) const
 {
     auto pos=findings.begin();
-    for(size_t i=0;i<index.row();++i)
+    for(int i=0;i<index.row();++i)
     {
         ++pos;
     }
@@ -48,7 +48,7 @@ QVariant SignatureList::data(const QModelIndex& index, int role ) const
     {
         case Qt::DisplayRole:
         {
-            if(index.row()<0 || index.row()>findings.size())
+            if(index.row()<0 || size_t(index.row()) > findings.size())
             {
                 return QVariant();
             }

@@ -13,6 +13,6 @@ QPluginLoader *vDetectors::operator[](const size_t idx) const
 
 vPlugins::const_iterator operator+(vPlugins::const_iterator it, const int count)
 {
-    for(size_t k=0; k<count;++k,++it);
+    for(int k=0; k<count;++k,++it);
     return it;
 }
