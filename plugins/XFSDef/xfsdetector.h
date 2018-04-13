@@ -7,17 +7,15 @@
 class XFSDetector : public SignatureDetectorBase
 {
 public:
-    XFSDetector(const SignatureDefInterface* parent,const uchar* base, const quint64 size);
+    XFSDetector(const SignatureDefInterface* parent);
 public:
-    void run(const std::atomic<bool>& stopper);
+    void run(const std::atomic<bool>& stopper, const uchar *base, const quint64 size, ProgressSignaler *sgn, const quint64 ofs);
 
     // SignatureDetector interface
 public:
 
-
-    // SignatureDetector interface
-public:
     void build(QWidget *parent, const qulonglong stripeSize);
+
 };
 
 #endif // XFSDETECTOR_H

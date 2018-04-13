@@ -1,19 +1,14 @@
 #include "signaturedetectorbase.h"
 #include "progresssignaler.h"
 
-SignatureDetectorBase::SignatureDetectorBase(const SignatureDefInterface* parent, const uchar *base, const quint64 size,const std::vector<uchar>& sign):
-    SignatureDetector(parent),
+SignatureDetectorBase::SignatureDetectorBase(const SignatureDefInterface* parent, const std::vector<uchar>& sign):
     sign(sign),
-    sgn(ProgressSignaler::make(size,this)),
-    base(base),
-    size(size)
-
-
+    SignatureDetector(parent)
 {
-    connect(sgn,&ProgressSignaler::percent, this, &SignatureDetectorBase::percent);
+
 }
 
-void SignatureDetectorBase::search(const std::atomic<bool> &stopper)
+void SignatureDetectorBase::search(const std::atomic<bool> &stopper, const uchar* base, const quint64 size,ProgressSignaler* sgn, const quint64 ofs)
 {
     auto j=sign.begin();
 
@@ -21,7 +16,7 @@ void SignatureDetectorBase::search(const std::atomic<bool> &stopper)
     {
         if(j==sign.end())
         {
-            onFound(base+i-sign.size());
+            onFound(i+ofs);
             j=sign.begin();
         }
 
@@ -40,7 +35,13 @@ void SignatureDetectorBase::search(const std::atomic<bool> &stopper)
     }
 }
 
-void SignatureDetectorBase::onFound(const uchar *offset)
+void SignatureDetectorBase::onFound(const quint64 offset)
 {
     emit found(offset);
+}
+
+
+quint64 SignatureDetectorBase::granularity()
+{
+    return sign.size();
 }

@@ -31,9 +31,7 @@ void ImageInfo::release()
 
 ImageInfo::ImageInfo(SignatureList *signatures,
                      storageSet::const_iterator storage,
-                     int threadCount,
-                     quint64 size,
-                     uchar *base,
+                     int threadCount,                     
                      QObject *parent)
     :
       QObject(parent),
@@ -41,9 +39,7 @@ ImageInfo::ImageInfo(SignatureList *signatures,
       sem(new QSemaphore(threadCount)),
       signatures(signatures),
       storage(storage),
-      nUsedAlgorithms(0),
-      size(size),
-      base(base)
+      nUsedAlgorithms(0)
 {
 
 }

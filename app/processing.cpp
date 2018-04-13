@@ -2,7 +2,7 @@
 #include "processing.h"
 #include "signaturelist.h"
 #include <QThread>
-
+#include <progresssignaler.h>
 
 
 Processing::Processing(ImagesList *imgs, const vDetectors& dets,const std::atomic<bool> &stopper):imgs(imgs),dets(dets),stopper(stopper)
@@ -19,6 +19,7 @@ void Processing::run()
         bool allDone=true;
         for(auto&i:*imgs)
         {
+            QFile* file=const_cast<QFile*>(&i.first);
             const auto& cur=i.second;
             bool workDone=false;
             if(cur->tryAcquire())
@@ -38,35 +39,40 @@ void Processing::run()
 
 
 
-                        const auto def =  qobject_cast<SignatureDefInterface*> (dets[algorithm] ->instance()) ->make(cur->base,cur->size);
+                        const auto def =  qobject_cast<SignatureDefInterface*> (dets[algorithm] ->instance()) ->make();
 
-                        connect(def,&SignatureDetector::found,cur->signatures.get(),static_cast<void (SignatureList::*)(const uchar*)>(&SignatureList::registerSignature));
+                        connect(def,&SignatureDetector::found,cur->signatures.get(),static_cast<void (SignatureList::*)(const quint64)>(&SignatureList::registerSignature));
 
 
 
-                        connect(def,&SignatureDetector::percent,[&cur,algorithm](const int percent)
+                        quint64 fsize=file->size();
+
+                        auto signaler=ProgressSignaler::make(fsize,def);
+
+                        connect(signaler,&ProgressSignaler::percent,[&cur,algorithm](const int percent)
                                                                 {
                                                                     cur->setProgress(algorithm, percent);
                                                                 }                          );
 
-                        for(size_t j=0;j!=100;++j)
+                        constexpr quint64 bufsz=(1<<20)*100;
+
+                        const quint64 gran=def->granularity();
+
+                        const quint64 bufcorrected= bufsz - (bufsz % gran);
+
+
+                        for(quint64 pos = 0; const size_t buffermin=std::min(bufcorrected, fsize-pos ); )
                         {
-                            try
-                            {
-                                def->run(stopper);
-                            }
-                            catch(std::exception& ex)
-                            {
-                                storeLog(tr("task failed with exception, num retries %1 what is %2").arg(j).arg(ex.what()));
-                                QThread::sleep(1);
-                            }
-                            catch(...)
-                            {
-                                storeLog(tr("task failed with exception, num retries %1").arg(j));
-                                QThread::sleep(1);
-                            }
+                            const auto buf=file->map(pos, buffermin);
+
+                            def->run(stopper,buf,buffermin,signaler,pos);
+
+                            file->unmap(buf);
+
+                            pos+=buffermin;
 
                         }
+
 
                         def->deleteLater();
 

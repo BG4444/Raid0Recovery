@@ -35,11 +35,12 @@ QByteArray ImagesList::glue(const Glue& glue,const quint64 sector_size, const qu
     auto pos=ret.begin();
 
     for(const auto& i:glue)
-    {
-        const auto beg=imagesIndex[i]->second->base + offset;
-        const auto en =beg+sector_size;
-        pos=std::copy(beg,en,pos);
+    {        
+        QFile* f  = const_cast<QFile*>(&imagesIndex[i]->first);
 
+        f->seek(offset);
+        f->read(pos,sector_size);
+        pos+=sector_size;
     }
 
     return ret;
@@ -53,15 +54,12 @@ Filemap::const_iterator ImagesList::insFile(const QString& fName)
     {
         const auto cur=const_cast<QFile*>(&(insertion.first->first));
         if(cur->open(QFile::ReadOnly))
-        {
-            const auto base=cur->map(0,cur->size());
-            const auto lst=new SignatureList(this,vDetect,base,cur->size());
+        {            
+            const auto lst=new SignatureList(this,vDetect);
             insertion.first->second.reset(new ImageInfo
                                              (lst,
                                               sDetect.detect(cur->fileName()),
                                               threadCount,
-                                              cur->size(),
-                                              base,
                                               this
                                              ));
 

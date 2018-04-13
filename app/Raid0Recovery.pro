@@ -50,7 +50,8 @@ SOURCES += \
     imageinfo.cpp \
     vdetectors.cpp \
     fileglue.cpp \
-    raid0recoveryapp.cpp
+    raid0recoveryapp.cpp \
+    ../common/progresssignaler.cpp
 
 HEADERS += \
         recoverwindow.h \
@@ -63,7 +64,8 @@ HEADERS += \
     ../interfaces/signaturedefinterface.h \
     vdetectors.h \
     fileglue.h \
-    raid0recoveryapp.h
+    raid0recoveryapp.h \
+    ../common/progresssignaler.h
 
 FORMS += \
         recoverwindow.ui

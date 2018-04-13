@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-    Raid0RecoveryApp a(argc, argv);
+    QApplication a(argc, argv);
     RecoverWindow w;
     w.showMaximized();
 

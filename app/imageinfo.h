@@ -16,15 +16,11 @@ class ImageInfo : public QObject
 public:
     std::unique_ptr<SignatureList> signatures;
     storageSet::const_iterator storage;    
-    std::atomic<size_t> nUsedAlgorithms;
-    quint64 size;
-    uchar* base;
+    std::atomic<size_t> nUsedAlgorithms;    
 
     explicit ImageInfo(SignatureList* signatures,
                        storageSet::const_iterator storage,
                        int threadCount,
-                       quint64 size,
-                       uchar* base,
                        QObject *parent);
 
 

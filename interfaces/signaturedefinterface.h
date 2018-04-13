@@ -6,18 +6,19 @@
 #include <atomic>
 
 class SignatureDefInterface;
+class ProgressSignaler;
 
 class SignatureDetector:public QObject
 {
     Q_OBJECT    
 signals:
-   void found(const uchar* offset);
-   void percent(int percent);
+   void found(const quint64 offset);
    void storeLog(const QString& msg);
 public:
    const SignatureDefInterface* parent;
-   virtual void run(const std::atomic<bool>& stopper)=0;
+   virtual void run(const std::atomic<bool>& stopper, const uchar *base, const quint64 size,ProgressSignaler *sgn, const quint64 ofs)=0;
    virtual void build(QWidget* parent, const qulonglong stripeSize)=0;
+   virtual quint64 granularity() = 0;
    SignatureDetector(const SignatureDefInterface* parent):parent(parent)
    {
 
@@ -27,7 +28,7 @@ public:
 class SignatureDefInterface
 {
 public:
-   virtual SignatureDetector* make(const uchar* offset,const  quint64 size) = 0;
+   virtual SignatureDetector* make() = 0;
    virtual ~SignatureDefInterface(){};
 };
 

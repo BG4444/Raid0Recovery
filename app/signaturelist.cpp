@@ -15,7 +15,7 @@ const QPluginLoader *SignatureList::instanceByInterface(const SignatureDefInterf
     )->first;
 }
 
-SignatureList::SignatureList(QObject *parent, const vDetectors &vDet, const uchar* base, const uint64_t size):QAbstractTableModel(parent),vDet(vDet),base(base),size(size)
+SignatureList::SignatureList(QObject *parent, const vDetectors &vDet):QAbstractTableModel(parent),vDet(vDet)
 {
 
 }
@@ -62,7 +62,7 @@ QVariant SignatureList::data(const QModelIndex& index, int role ) const
                 }
                 case 1:
                 {
-                    const qulonglong ptr = pos->second-base;
+                    const qulonglong ptr = pos->second;
                     return QString::number(ptr,16);
                 }
             }
@@ -93,15 +93,15 @@ void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const Fi
 
     constexpr size_t ssize=8192*16;
 
-    const auto& gluedData= imgs->glue(g, ssize, pos->second - base);
+    const auto& gluedData= imgs->glue(g, ssize, pos->second);
 
-    const auto oper=face->make(reinterpret_cast<const uchar*>(gluedData.data()), gluedData.size() );
+    const auto oper=face->make();
 
     oper->build(buildTab,ssize);
 }
 
 
-void SignatureList::registerSignature(const uchar *offset)
+void SignatureList::registerSignature(const quint64 offset)
 {
     const auto s = sender();
 
@@ -114,19 +114,19 @@ void SignatureList::registerSignature(const uchar *offset)
 
     const auto inst=instanceByInterface(def->parent);
 
-    registerSignature(inst,offset - base);
+    registerSignature(inst,offset);
 
     emit findinsUpdated(def->parent);
 }
 
-void SignatureList::registerSignature(const QPluginLoader *plg, qulonglong ptr)
+void SignatureList::registerSignature(const QPluginLoader *plg, quint64 ptr)
 {
     const auto it=findings.equal_range(plg);
-    const uchar* offset=ptr+base;
 
-    if(std::find_if(it.first ,it.second,[offset](const Findings::value_type& cur)
+
+    if(std::find_if(it.first ,it.second,[ptr](const Findings::value_type& cur)
                                             {
-                                                 return offset==cur.second;
+                                                 return ptr==cur.second;
                                             }
 
                    ) != it.second
@@ -135,7 +135,7 @@ void SignatureList::registerSignature(const QPluginLoader *plg, qulonglong ptr)
         throw excDuplicateAddress();
     }
 
-    findings.insert(std::make_pair(plg,offset));
+    findings.insert(std::make_pair(plg,ptr));
 }
 
 QDataStream& operator <<(QDataStream &dev, const SignatureList &lst)
@@ -144,7 +144,7 @@ QDataStream& operator <<(QDataStream &dev, const SignatureList &lst)
     for(const auto& i:lst.findings)
     {
         QPluginLoader* plg= const_cast<QPluginLoader*>(i.first);
-        dev << lst.vDet.find(plg)->second << static_cast<qulonglong>(i.second - lst.base);
+        dev << lst.vDet.find(plg)->second << static_cast<qulonglong>(i.second);
     }
     return dev;
 }

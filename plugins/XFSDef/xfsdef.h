@@ -15,7 +15,7 @@ public:
 
     // SignatureDefInterface interface
 public:
-    SignatureDetector *make(const uchar *offset,const quint64 size);
+    SignatureDetector *make();
 };
 
 #endif // XFSDEF_H

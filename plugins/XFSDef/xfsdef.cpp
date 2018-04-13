@@ -1,7 +1,7 @@
 #include "xfsdef.h"
 #include "xfsdetector.h"
 
-SignatureDetector *XFSDef::make(const uchar *offset, const quint64 size)
+SignatureDetector *XFSDef::make()
 {
-    return new XFSDetector( this, offset,size);
+    return new XFSDetector( this);
 }

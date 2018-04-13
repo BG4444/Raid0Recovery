@@ -17,17 +17,13 @@ class SignatureList : public QAbstractTableModel
 {
     Q_OBJECT    
 
-    using Findings=std::multimap<const QPluginLoader*,const uchar*>;
+    using Findings=std::multimap<const QPluginLoader*,const quint64>;
 
     Findings findings;
 
     const vDetectors& vDet;
 
     const QPluginLoader* instanceByInterface(const SignatureDefInterface* det);
-
-    const uchar* base;
-
-    const quint64 size;
 
     Findings::const_iterator roll(const QModelIndex& index) const;
 
@@ -36,7 +32,7 @@ public:
     class excWrongSender{};
     class excDuplicateAddress{};
 
-    SignatureList(QObject *parent, const vDetectors& vDet, const uchar* base, const uint64_t size);
+    SignatureList(QObject *parent, const vDetectors& vDet);
 
 public:
     int rowCount(const QModelIndex &parent) const;
@@ -45,8 +41,8 @@ public:
     size_t countOfFindings(const QPluginLoader *det);
     void build(const int rowFindingsList, QWidget *buildTab,const FileGlue& glue) const;
 public slots:
-    void registerSignature(const uchar* offset);
-    void registerSignature(const QPluginLoader* plg, qulonglong ptr);
+    void registerSignature(const quint64 offset);
+    void registerSignature(const QPluginLoader* plg, quint64 ptr);
 signals:
     void findinsUpdated(const SignatureDefInterface* det);
     friend QDataStream&operator <<( QDataStream &dev, const SignatureList& lst);
