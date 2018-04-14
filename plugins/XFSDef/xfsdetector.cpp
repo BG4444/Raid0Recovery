@@ -1,9 +1,11 @@
 #include "xfsdetector.h"
 #include <QtEndian>
+#include <QtWidgets/QPlainTextEdit>
+//#include <xfs/xfs_format.h>
 
 
 XFSDetector::XFSDetector(const SignatureDefInterface* parent):
-                SignatureDetectorBase(parent,{'X','F','S','B',0,0,0x10,00})
+                SignatureDetectorBase(parent,{'X','F','S','B'})
 
 {
 
@@ -11,6 +13,9 @@ XFSDetector::XFSDetector(const SignatureDefInterface* parent):
 
 void XFSDetector::build(QWidget *parent, const qulonglong stripeSize, const uchar *base, const quint64 size)
 {
+    QPlainTextEdit* edt=new QPlainTextEdit(parent);
+//    xfs_sb* sb=reinterpret_cast<xfs_sb*>(base);
+
 }
 
 
@@ -22,18 +27,14 @@ void XFSDetector::run(const std::atomic<bool> &stopper, uchar *base, const quint
 }
 
 
-quint64 XFSDetector::granularity()
-{
-    return SignatureDetectorBase::granularity()+8;
-}
-
 void XFSDetector::onFound(const quint64 offset)
 {
-    const quint64 fsSize = qFromBigEndian(*reinterpret_cast<quint64*>( base+ (offset-ofs)  ));
+    const quint32 blockSize = qFromBigEndian(*reinterpret_cast<quint32*>( base+ (offset-ofs+4)  ));
+    const quint64 fsSize = qFromBigEndian(*reinterpret_cast<quint64*>( base+ (offset-ofs+8)  ));
 
     const quint64 oneTb = quint64(1)<<(10*4);
 
-    if(fsSize*4096 > oneTb)
+    if(fsSize*blockSize > oneTb)
     {
         SignatureDetectorBase::onFound(offset);
     }

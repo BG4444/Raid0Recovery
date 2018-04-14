@@ -4,6 +4,7 @@
 #include "signaturedefinterface.h"
 #include "signaturedetectorbase.h"
 
+
 class XFSDetector : public SignatureDetectorBase
 {
     uchar* base;
@@ -17,9 +18,6 @@ public:
     void run(const std::atomic<bool> &stopper, uchar *base, const quint64 size, ProgressSignaler *sgn, const quint64 ofs);
 
     // SignatureDetector interface
-public:
-    quint64 granularity();
-
     // SignatureDetectorBase interface
 public:
     void onFound(const quint64 offset);
