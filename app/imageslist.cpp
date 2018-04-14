@@ -30,7 +30,7 @@ int ImagesList::findSignatureList(const SignatureList *lst) const
 
 QByteArray ImagesList::glue(const Glue& glue,const quint64 sector_size, const quint64 offset)
 {
-    QByteArray ret(glue.size()*sector_size,0);
+    QByteArray ret(glue.size()*sector_size,Qt::Uninitialized);
 
     auto pos=ret.begin();
 
@@ -62,6 +62,7 @@ Filemap::const_iterator ImagesList::insFile(const QString& fName)
                                               threadCount,
                                               this
                                              ));
+            connect(lst,&SignatureList::storeLog,this,&ImagesList::storeLog);
 
             connect(insertion.first->second.get(),&ImageInfo::progressChanged,this,&ImagesList::onProgressChanged);
 

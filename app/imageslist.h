@@ -71,8 +71,9 @@ public:
 signals:
     void setThreadCount(const int count);
     void ProgressChanged(const int value);
-friend QDataStream &operator <<(QDataStream &dev, const ImagesList& lst);
-friend QDataStream &operator >>(QDataStream &dev,ImagesList& lst);
+    friend QDataStream &operator <<(QDataStream &dev, const ImagesList& lst);
+    friend QDataStream &operator >>(QDataStream &dev,ImagesList& lst);
+    void storeLog(const QString& msg);
 };
 
 

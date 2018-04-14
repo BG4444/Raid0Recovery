@@ -80,6 +80,7 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
 
     connect(imgs,&ImagesList::ProgressChanged,pBar,&QProgressBar::setValue);
     connect(imgs,&ImagesList::rowsInserted,this,&RecoverWindow::updateProgressMaximum);
+    connect(imgs,&ImagesList::storeLog,this,&RecoverWindow::storeLog);
 
 
     //обвязка файлового диалога

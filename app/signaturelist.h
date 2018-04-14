@@ -46,6 +46,7 @@ public slots:
 signals:
     void findinsUpdated(const SignatureDefInterface* det);
     friend QDataStream&operator <<( QDataStream &dev, const SignatureList& lst);
+    void storeLog(const QString& mess) const;
 };
 
 QDataStream& operator <<( QDataStream &dev, const SignatureList& lst);

@@ -1,6 +1,7 @@
 #include "signaturelist.h"
 #include "signaturedefinterface.h"
 #include "imageslist.h"
+#include <macroses.h>
 
 
 #include <QFile>
@@ -97,7 +98,7 @@ void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const Fi
 
     QFile gluedDataFile("glued.data");
     gluedDataFile.open(QFile::WriteOnly);
-    gluedDataFile.write(gluedData);
+    ASSERT(gluedDataFile.write(gluedData)==gluedData.size());
     gluedDataFile.close();
 
     const auto oper=face->make();
