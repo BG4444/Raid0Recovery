@@ -91,13 +91,13 @@ void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const Fi
 
     const auto g=glue.insertPersistent();
 
-    constexpr size_t ssize=8192*16;
+    constexpr size_t ssize=4096*48;
 
     const auto& gluedData= imgs->glue(g, ssize, pos->second);
 
     const auto oper=face->make();
 
-    oper->build(buildTab,ssize);
+    oper->build(buildTab,ssize,reinterpret_cast<const uchar*>(gluedData.data()),gluedData.size());
 }
 
 

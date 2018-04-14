@@ -281,7 +281,40 @@ QVariant ImagesList::headerData(int section, Qt::Orientation orientation, int ro
 
 bool cmpFiles::operator ()(const QFile &a, const QFile &b)
 {
-    return a.fileName() < b.fileName();
+    quint8 alpha;
+    quint8 beta;
+    bool aopen=false;
+    bool bopen=false;
+
+    if(!a.isOpen())
+    {
+        const_cast<QFile*>(&a)->open(QFile::ReadOnly);
+        aopen=true;
+    }
+    if(!b.isOpen())
+    {
+        const_cast<QFile*>(&b)->open(QFile::ReadOnly);
+        bopen=true;
+    }
+
+
+    const_cast<QFile*>(&a)->seek(99);
+    const_cast<QFile*>(&a)->read(reinterpret_cast<char*>(&alpha),1);
+
+    if(aopen)
+    {
+        const_cast<QFile*>(&a)->close();
+    }
+
+    const_cast<QFile*>(&b)->seek(99);
+    const_cast<QFile*>(&b)->read(reinterpret_cast<char*>(&beta),1);
+
+    if(bopen)
+    {
+        const_cast<QFile*>(&b)->close();
+    }
+
+    return alpha<beta;
 }
 
 QDataStream &operator <<(QDataStream &dev, const ImagesList &lst)

@@ -10,22 +10,20 @@ SignatureDetectorBase::SignatureDetectorBase(const SignatureDefInterface* parent
 
 void SignatureDetectorBase::search(const std::atomic<bool> &stopper, const uchar* base, const quint64 size,ProgressSignaler* sgn, const quint64 ofs)
 {
-    auto j=sign.begin();
+    size_t j=0;
+    const size_t ss=sign.size();
 
     for(quint64 i=0; (i < size) && stopper; ++i)
     {
-        if(j==sign.end())
+        if(j==ss)
         {
-            onFound(i+ofs);
-            j=sign.begin();
+            onFound(i-j+ofs);
+            j=0;
         }
 
-        if(base[i] != *j)
+        if(base[i] != sign[j])
         {
-            if(j!=sign.begin())
-            {
-                j=sign.begin();
-            }
+            j=0;
         }
         else
         {

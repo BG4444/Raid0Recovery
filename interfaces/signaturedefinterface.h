@@ -16,8 +16,8 @@ signals:
    void storeLog(const QString& msg);
 public:
    const SignatureDefInterface* parent;
-   virtual void run(const std::atomic<bool>& stopper, const uchar *base, const quint64 size,ProgressSignaler *sgn, const quint64 ofs)=0;
-   virtual void build(QWidget* parent, const qulonglong stripeSize)=0;
+   virtual void run(const std::atomic<bool>& stopper,uchar *base, const quint64 size,ProgressSignaler *sgn, const quint64 ofs)=0;
+   virtual void build(QWidget* parent, const qulonglong stripeSize, const uchar* base, const quint64 size)=0;
    virtual quint64 granularity() = 0;
    SignatureDetector(const SignatureDefInterface* parent):parent(parent)
    {
