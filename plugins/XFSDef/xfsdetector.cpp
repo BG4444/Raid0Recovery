@@ -31,7 +31,7 @@ void XFSDetector::onFound(const quint64 offset)
 {
     const quint64 fsSize = qFromBigEndian(*reinterpret_cast<quint64*>( base+ (offset-ofs)  ));
 
-    const quint64 oneTb = quint64(1)<<12;
+    const quint64 oneTb = quint64(1)<<(10*4);
 
     if(fsSize > oneTb)
     {
