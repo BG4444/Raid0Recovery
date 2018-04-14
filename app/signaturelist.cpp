@@ -91,9 +91,14 @@ void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const Fi
 
     const auto g=glue.insertPersistent();
 
-    constexpr size_t ssize=4096*48;
+    constexpr size_t ssize=4096*64;
 
     const auto& gluedData= imgs->glue(g, ssize, pos->second);
+
+    QFile gluedDataFile("glued.data");
+    gluedDataFile.open(QFile::WriteOnly);
+    gluedDataFile.write(gluedData);
+    gluedDataFile.close();
 
     const auto oper=face->make();
 
