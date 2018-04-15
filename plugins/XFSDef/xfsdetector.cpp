@@ -5,7 +5,7 @@
 
 
 XFSDetector::XFSDetector(const SignatureDefInterface* parent):
-                SignatureDetectorBase(parent,{'X','F','S','B'})
+                SignatureDetectorBase(parent,{'X','F','S','B',0,0,0x10,0})
 
 {
 
@@ -38,4 +38,9 @@ void XFSDetector::onFound(const quint64 offset)
     {
         SignatureDetectorBase::onFound(offset);
     }
+}
+
+quint64 XFSDetector::granularity()
+{
+    return SignatureDetectorBase::granularity()+8;
 }

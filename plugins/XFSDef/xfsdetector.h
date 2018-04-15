@@ -21,6 +21,10 @@ public:
     // SignatureDetectorBase interface
 public:
     void onFound(const quint64 offset);
+
+    // SignatureDetector interface
+public:
+    quint64 granularity();
 };
 
 #endif // XFSDETECTOR_H
