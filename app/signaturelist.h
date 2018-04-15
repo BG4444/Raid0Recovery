@@ -39,7 +39,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;   
     size_t countOfFindings(const QPluginLoader *det);
-    void build(const int rowFindingsList, QWidget *buildTab,const FileGlue& glue) const;
+    void build(const int rowFindingsList, QWidget *buildTab, const FileGlue& glue, const quint64 chunkSize) const;
 public slots:
     void registerSignature(const quint64 offset);
     void registerSignature(const QPluginLoader* plg, quint64 ptr);

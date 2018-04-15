@@ -79,7 +79,7 @@ size_t SignatureList::countOfFindings(const QPluginLoader *det)
     return findings.count(det);
 }
 
-void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const FileGlue& glue) const
+void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const FileGlue& glue,const quint64 chunkSize) const
 {
     auto pos=roll(index(rowFindingsList,0));
 
@@ -92,9 +92,9 @@ void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const Fi
 
     const auto g=glue.insertPersistent();
 
-    constexpr size_t ssize=1024*128*4;
 
-    const auto& gluedData= imgs->glue(g, ssize, pos->second);
+
+    const auto& gluedData= imgs->glue(g, chunkSize, pos->second);
 
     QFile gluedDataFile("glued.data");
     gluedDataFile.open(QFile::WriteOnly);
@@ -103,7 +103,7 @@ void SignatureList::build( const int rowFindingsList, QWidget* buildTab,const Fi
 
     const auto oper=face->make();
 
-    oper->build(buildTab,ssize,reinterpret_cast<const uchar*>(gluedData.data()),gluedData.size());
+    oper->build(buildTab,chunkSize,reinterpret_cast<const uchar*>(gluedData.data()),gluedData.size());
 }
 
 

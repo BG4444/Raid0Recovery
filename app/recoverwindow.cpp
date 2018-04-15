@@ -101,6 +101,7 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
     loadSpinBoxSetting(ui->totalThreads,QThread::idealThreadCount());
     loadSpinBoxSetting(ui->threadsPerDrive,1);
     loadSpinBoxSetting(ui->threadsPerFile,1);
+    loadSpinBoxSetting(ui->chunkSize,128*1024);
 
 
 
@@ -265,7 +266,7 @@ void RecoverWindow::build()
             }
             storeLog(str);
 
-            lst->build( rows[0].row(),ui->buildWidget,*glue.get());
+            lst->build( rows[0].row(),ui->buildWidget,*glue.get(),ui->chunkSize->value());
         }
     }
 }
