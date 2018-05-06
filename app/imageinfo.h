@@ -11,7 +11,7 @@
 class ImageInfo : public QObject
 {
     Q_OBJECT   
-    QVector<int> progress;
+    QVector< int > progress;
     std::unique_ptr<QSemaphore> sem;
 public:
     std::unique_ptr<SignatureList> signatures;
@@ -24,7 +24,7 @@ public:
                        QObject *parent);
 
 
-    const QVector<int>& getProgress() const;
+    const QVector<int> &getProgress() const;
 
     bool tryAcquire();
 

@@ -22,9 +22,9 @@ SignatureList *ImagesList::operator[](int row) const
 int ImagesList::findSignatureList(const SignatureList *lst) const
 {
     return std::find_if(imagesIndex.begin(),imagesIndex.end(), [lst](const Fileindex::value_type& cur)
-    {
-        return cur->second->signatures.get()==lst;
-    }
+                                                                {
+                                                                    return cur->second->signatures.get()==lst;
+                                                                }
                 )-imagesIndex.begin();
 }
 
@@ -44,6 +44,14 @@ QByteArray ImagesList::glue(const Glue& glue,const quint64 sector_size, const qu
     }
 
     return ret;
+}
+
+void ImagesList::resetCapturedParts()
+{
+    for(auto& i:*this)
+    {
+        i.second->nUsedAlgorithms=0;
+    }
 }
 
 

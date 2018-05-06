@@ -16,9 +16,19 @@ class ImagesList;
 class SignatureList : public QAbstractTableModel
 {
     Q_OBJECT    
+public:
+    struct findingInfo
+    {
+        const quint64 offset;
+        QByteArray hash;
+        findingInfo(const quint64 offset):offset(offset)
+        {
 
-    using Findings=std::multimap<const QPluginLoader*,const quint64>;
+        }
+    };
 
+    using Findings=std::multimap<const QPluginLoader*,findingInfo>;
+private:
     Findings findings;
 
     const vDetectors& vDet;
@@ -33,13 +43,16 @@ public:
     class excDuplicateAddress{};
 
     SignatureList(QObject *parent, const vDetectors& vDet);
-
-public:
+    size_t count(const QPluginLoader* ldr) const;
+    std::pair<Findings::iterator, Findings::iterator> allOf(const QPluginLoader* ldr);
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;   
     size_t countOfFindings(const QPluginLoader *det);
     void build(const int rowFindingsList, QWidget *buildTab, const FileGlue& glue, const quint64 chunkSize) const;
+
+
+
 public slots:
     void registerSignature(const quint64 offset);
     void registerSignature(const QPluginLoader* plg, quint64 ptr);

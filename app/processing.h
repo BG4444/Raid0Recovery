@@ -6,22 +6,23 @@
 #include <QEventLoop>
 #include "signaturedefinterface.h"
 #include "vdetectors.h"
+#include <functional>
 
 class ImagesList;
+class ImageInfo;
+class QFile;
+
+using Applicator=std::function<void(ImageInfo*,QFile*,bool&, bool&)>;
 
 class Processing :public QObject, public QRunnable
 {
     Q_OBJECT
-
-    ImagesList* imgs;
-    const vDetectors& dets;
-    const std::atomic<bool> &stopper;
+    ImagesList* imgs;        
+    Applicator apply;
 public:
-    Processing(ImagesList* imgs, const vDetectors& dets, const std::atomic<bool> &stopper);
-
-    // QRunnable interface
-public:
+    Processing(ImagesList* imgs, Applicator  apply);
     void run();
+
 signals:
     void storeLog(const QString&);
     void taskReleased();

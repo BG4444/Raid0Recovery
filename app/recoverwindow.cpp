@@ -18,6 +18,8 @@
 #include <QSpinBox>
 #include <QMetaClassInfo>
 #include "macroses.h"
+#include <progresssignaler.h>
+#include <QCryptographicHash>
 
 void RecoverWindow::loadSpinBoxSetting(QSpinBox *box, const int defValue)
 {
@@ -53,7 +55,8 @@ void RecoverWindow::loadPlugins()
         if(t)
         {
             storeLog(QString(tr("%1 plugin loaded")).arg(dirs[i].fileName()));
-            signatureDetectors.insert(std::make_pair(ldr,i));
+            const auto pos=signatureDetectors.size();
+            signatureDetectors.insert(std::make_pair(ldr,pos));
         }
     }
 }
@@ -72,6 +75,8 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
     ASSERT(connect(this,&RecoverWindow::storeLog,ui->logStorage,&QPlainTextEdit::appendPlainText));
 
     loadPlugins();
+
+    ui->detectorForCompare->setModel(&signatureDetectors);
 
     imgs=new ImagesList(this,sDetect,signatureDetectors);
 
@@ -113,6 +118,7 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
 
 
     connect(ui->scanButton,&QToolButton::clicked,this,&RecoverWindow::startScanning);
+    connect(ui->compareButton,&QToolButton::clicked,this,&RecoverWindow::startHashing);
 
     connect(ui->storeButton,&QToolButton::clicked,this,&RecoverWindow::store);
     connect(ui->loadButton,&QToolButton::clicked,this,&RecoverWindow::load);
@@ -128,8 +134,6 @@ RecoverWindow::RecoverWindow(QWidget *parent) :
         storeLog(i.first.displayName());
     }
 
-
-
     storeLog(tr("Ready!"));
 }
 
@@ -138,8 +142,9 @@ RecoverWindow::~RecoverWindow()
     delete ui;
 }
 
-void RecoverWindow::doScan()
+void RecoverWindow::doScan(Applicator apply)
 {
+    imgs->resetCapturedParts();
     stopper=true;
     std::vector<Processing*> procs;
 
@@ -147,7 +152,7 @@ void RecoverWindow::doScan()
 
     for(int i=0;i<ui->totalThreads->value();++i)
     {
-        procs.push_back(new Processing(imgs,signatureDetectors, stopper));
+        procs.push_back(new Processing(imgs, apply  ));
     }
 
     storeLog(tr("tasks created"));
@@ -183,7 +188,110 @@ void RecoverWindow::startScanning(const bool toggle)
 {
     if(toggle)
     {
-        doScan();
+        doScan([this](ImageInfo* cur, QFile* file, bool& workDone, bool& allDone)
+        {
+            size_t algorithm;
+
+            if(cur->nUsedAlgorithms < signatureDetectors.size() && ( algorithm = cur->nUsedAlgorithms++) < signatureDetectors.size() )
+            {
+
+                emit storeLog(QString(tr("new search started for file %1")).arg(file->fileName()));
+
+
+                const auto def =  qobject_cast<SignatureDefInterface*> (signatureDetectors[algorithm] ->instance()) ->make();
+
+                connect(def,&SignatureDetector::found,cur->signatures.get(),static_cast<void (SignatureList::*)(const quint64)>(&SignatureList::registerSignature));
+
+
+
+                quint64 fsize=file->size();
+
+                auto signaler=ProgressSignaler::make(fsize,def);
+
+                connect(signaler,&ProgressSignaler::percent,[&cur,algorithm](const int percent)
+                                                        {
+                                                            cur->setProgress(algorithm, percent);
+                                                        }                          );
+
+                constexpr quint64 bufsz=(1<<20)*100;
+
+                const quint64 gran=def->granularity();
+
+                const quint64 bufcorrected= bufsz - (bufsz % gran);
+
+
+                for(quint64 pos = 0; const size_t buffermin=std::min(bufcorrected, fsize-pos ); )
+                {
+                    const auto buf=file->map(pos, buffermin);
+
+                    def->run(stopper,buf,buffermin,signaler,pos);
+
+                    file->unmap(buf);
+
+                    pos+=buffermin;
+
+                }
+
+
+                def->deleteLater();
+
+                workDone=true;
+                allDone=false;
+
+                emit storeLog(QString(tr("search done for file %1")).arg(file->fileName()));
+
+            }
+        });
+    }
+    else
+    {
+        doStop();
+    }
+}
+
+void RecoverWindow::startHashing(const bool toggle)
+{
+    if(toggle)
+    {
+        doScan([this](ImageInfo* cur, QFile* file, bool& workDone, bool& allDone)
+        {
+            size_t algorithm;
+            const size_t nAlg=ui->detectorForCompare->currentIndex();
+            const auto currentDetector=reinterpret_cast<QPluginLoader*>(ui->detectorForCompare->currentData().toULongLong());
+
+            const size_t countOfFindings=cur->signatures->count( currentDetector );
+
+            if(cur->nUsedAlgorithms < countOfFindings && ( algorithm = cur->nUsedAlgorithms++) < countOfFindings )
+            {
+
+
+
+
+                auto pos=cur->signatures->allOf(currentDetector).first;
+
+                for(size_t i=0;i<algorithm;++i)
+                {
+                    ++pos;
+
+                }
+
+                QCryptographicHash hs(QCryptographicHash::Sha256);
+
+                const auto mem=file->map( pos->second.offset,ui->compareSize->value());
+
+                hs.addData(reinterpret_cast<const char*>(mem),ui->compareSize->value());
+
+                file->unmap(mem);
+
+                pos->second.hash=hs.result();
+
+
+                workDone=true;
+                allDone=false;
+
+
+            }
+        });
     }
     else
     {

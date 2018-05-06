@@ -2,8 +2,11 @@
 
 void ImageInfo::setProgress(int nAlg, int value)
 {
-    progress[nAlg] = value;
-    emit progressChanged();
+    if(progress[nAlg] < value)
+    {
+        progress[nAlg] = value;
+        emit progressChanged();
+    }
 }
 
 void ImageInfo::setThreadCount(int count)

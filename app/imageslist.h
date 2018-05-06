@@ -40,8 +40,6 @@ class ImagesList : public QAbstractTableModel, public Filemap
     class InvalidSender{};
     void updateCellBy(const int col,const std::function<bool (const Fileindex::value_type &)> &&func);
 
-
-
     const_iterator insFile(const QString &fName);
 
     void reindexRows();
@@ -53,14 +51,14 @@ public:
     int findSignatureList(const SignatureList *lst) const;
 
     QByteArray glue(const Glue &glue, const quint64 sector_size, const quint64 offset);
-
+    void resetCapturedParts();
 
 public slots:
     void addImages(const QStringList& files);
     void onSetThreadCount(const int count);
     void onProgressChanged();
     void onFindingsUpdated(const SignatureDefInterface *det);
-    void clear();
+    void clear();    
 public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;

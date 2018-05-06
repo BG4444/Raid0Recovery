@@ -45,10 +45,11 @@ public:
 
 private:
     Ui::RecoverWindow *ui;
-    void doScan();
+    void doScan(Applicator apply);
     void doStop();
 public slots:
     void startScanning(const bool toggle);
+    void startHashing(const bool toggle);
     void paramChanged();
     void storeDir(const QString& dir);
     void updateProgressMaximum();

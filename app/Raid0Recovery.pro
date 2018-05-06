@@ -51,7 +51,8 @@ SOURCES += \
     vdetectors.cpp \
     fileglue.cpp \
     raid0recoveryapp.cpp \
-    ../common/progresssignaler.cpp
+    ../common/progresssignaler.cpp \
+    findingsforcompare.cpp
 
 HEADERS += \
         recoverwindow.h \
@@ -65,7 +66,8 @@ HEADERS += \
     vdetectors.h \
     fileglue.h \
     raid0recoveryapp.h \
-    ../common/progresssignaler.h
+    ../common/progresssignaler.h \
+    findingsforcompare.h
 
 FORMS += \
         recoverwindow.ui
