@@ -21,10 +21,7 @@ public:
     {
         const quint64 offset;
         QByteArray hash;
-        findingInfo(const quint64 offset):offset(offset)
-        {
-
-        }
+        findingInfo(const quint64 offset);
     };
 
     using Findings=std::multimap<const QPluginLoader*,findingInfo>;
@@ -50,7 +47,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const;   
     size_t countOfFindings(const QPluginLoader *det);
     void build(const int rowFindingsList, QWidget *buildTab, const FileGlue& glue, const quint64 chunkSize) const;
-
 
 
 public slots:

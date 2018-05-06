@@ -64,7 +64,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
+    QFile* getFile(int row);
 
 signals:
     void setThreadCount(const int count);

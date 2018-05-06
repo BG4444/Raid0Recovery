@@ -23,10 +23,10 @@ void Processing::run()
             bool workDone=false;
             if(cur->tryAcquire())
             {
-                emit storeLog(QString(tr("%1 file locked")).arg(i.first.fileName()));
+//                emit storeLog(QString(tr("%1 file locked")).arg(i.first.fileName()));
                 if(cur->storage->second->tryAcquire())
                 {
-                    emit storeLog(QString(tr("%1 drive locked")).arg(i.first.fileName()));
+//                    emit storeLog(QString(tr("%1 drive locked")).arg(i.first.fileName()));
 
                     apply(cur.get(),file,workDone,allDone);
 
@@ -34,12 +34,12 @@ void Processing::run()
                 }
                 else
                 {
-                    emit storeLog(QString(tr("%1 drive locked")).arg(i.first.fileName()));
+//                    emit storeLog(QString(tr("%1 drive locked")).arg(i.first.fileName()));
                     haveLocked=true;
                 }
 
                 cur->release();
-                emit storeLog(QString(tr("%1 file unlocked")).arg(i.first.fileName()));
+//                emit storeLog(QString(tr("%1 file unlocked")).arg(i.first.fileName()));
 
                 if(workDone)
                 {
@@ -48,7 +48,7 @@ void Processing::run()
             }
             else
             {
-                emit storeLog(QString(tr("%1 file lock failed")).arg(i.first.fileName()));
+//                emit storeLog(QString(tr("%1 file lock failed")).arg(i.first.fileName()));
                 haveLocked=true;
             }
         }
@@ -56,13 +56,13 @@ void Processing::run()
         {
             break;
         }
-        emit storeLog(QString(tr("no free task, waiting")));
+//        emit storeLog(QString(tr("no free task, waiting")));
 
         QEventLoop loop;
         connect(this,&Processing::onTaskRelease,&loop,&QEventLoop::quit);
 
         loop.exec();
-        emit storeLog(QString(tr("waiting complete")));
+//        emit storeLog(QString(tr("waiting complete")));
     }
 }
 

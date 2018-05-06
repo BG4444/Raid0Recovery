@@ -16,6 +16,7 @@ public:
     void onFound(const quint64 offset);
     quint64 granularity();
     void compare(const uchar *baseA, const uchar *baseB);
+    QString getDescription(const quint64 offset, QFile *file);
 };
 
 #endif // XFSDETECTOR_H

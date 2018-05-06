@@ -7,6 +7,7 @@
 
 class SignatureDefInterface;
 class ProgressSignaler;
+class QFile;
 
 class SignatureDetector:public QObject
 {
@@ -19,6 +20,7 @@ public:
    virtual void run(const std::atomic<bool>& stopper,uchar *base, const quint64 size,ProgressSignaler *sgn, const quint64 ofs)=0;
    virtual void build(QWidget* parent, const qulonglong stripeSize, const uchar* base, const quint64 size)=0;
    virtual quint64 granularity() = 0;
+   virtual QString getDescription(const quint64 offset, QFile* file)=0;
    SignatureDetector(const SignatureDefInterface* parent):parent(parent)
    {
 

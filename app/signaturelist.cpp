@@ -39,7 +39,7 @@ int SignatureList::rowCount(const QModelIndex &) const
 
 int SignatureList::columnCount(const QModelIndex &) const
 {
-    return 3;
+    return 4;
 }
 
 SignatureList::Findings::const_iterator SignatureList::roll(const QModelIndex& index) const
@@ -64,11 +64,11 @@ QVariant SignatureList::data(const QModelIndex& index, int role ) const
                 return QVariant();
             }
             auto pos = roll(index);
+            auto ldr=const_cast<QPluginLoader*>(pos->first);
             switch(index.column())
             {
                 case 0:
-                {
-                    const QPluginLoader* ldr=pos->first;
+                {                    
                     return ldr->metaData().find("className").value().toString();
                 }
                 case 1:
@@ -79,6 +79,14 @@ QVariant SignatureList::data(const QModelIndex& index, int role ) const
                 case 2:
                 {
                     return pos->second.hash.toBase64();
+                }
+                case 3:
+                {
+                     const auto def =  qobject_cast<SignatureDefInterface*> (ldr ->instance()) ->make();
+                     const auto imgs=  qobject_cast<ImagesList*>(parent());
+                     const auto ret =  def->getDescription(pos->second.offset,imgs->getFile(imgs->findSignatureList(this)));
+                     def->deleteLater();
+                     return ret;
                 }
             }
             return QVariant();
@@ -167,4 +175,9 @@ QDataStream& operator <<(QDataStream &dev, const SignatureList &lst)
         dev << lst.vDet.find(plg)->second << static_cast<qulonglong>(i.second.offset);
     }
     return dev;
+}
+
+SignatureList::findingInfo::findingInfo(const quint64 offset):offset(offset)
+{
+
 }

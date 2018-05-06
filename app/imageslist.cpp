@@ -218,7 +218,7 @@ QVariant ImagesList::data(const QModelIndex &index, int role) const
                 switch(index.column())
                 {
                     case 0:
-                        return QVariant(cur.fileName());
+                        return cur.fileName();
                     case 1:
                         if(cur.isOpen())
                         {
@@ -286,6 +286,11 @@ QVariant ImagesList::headerData(int section, Qt::Orientation orientation, int ro
         default:
             return QAbstractTableModel::headerData(section,orientation,role);
     }
+}
+
+QFile *ImagesList::getFile(int row)
+{
+    return const_cast<QFile*>(&imagesIndex[row]->first);
 }
 
 bool cmpFiles::operator ()(const QFile &a, const QFile &b)
