@@ -9,6 +9,8 @@ class SignatureDefInterface;
 class ProgressSignaler;
 class QFile;
 
+class QSettings;
+
 class SignatureDetector:public QObject
 {
     Q_OBJECT    
@@ -31,7 +33,11 @@ class SignatureDefInterface
 {
 public:
    virtual SignatureDetector* make() = 0;
-   virtual ~SignatureDefInterface(){};
+   virtual void configure(QWidget* parent,QSettings* set) = 0;
+   virtual ~SignatureDefInterface()
+   {
+
+   }
 };
 
 #define SignatureDefInterface_iid "com.github.bg4444.SignatureDefInterface"

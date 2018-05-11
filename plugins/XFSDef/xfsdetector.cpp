@@ -151,9 +151,13 @@ QString XFSDetector::getDescription(const quint64 offset, QFile *file)
         return QString();
     }
 
-    auto sb= reinterpret_cast<const xfs_sb*>(file->map(offset,512));
+    auto buf=file->map(offset,512);
 
-    const QByteArray uuid(reinterpret_cast<const char*>(sb->sb_uuid),sizeof(sb->sb_uuid));
+    auto sb= reinterpret_cast<const xfs_sb*>(buf);
 
-    return uuid.toBase64();
+    const QByteArray uuid=QByteArray::fromRawData(reinterpret_cast<const char*>(sb->sb_uuid),sizeof(sb->sb_uuid)).toBase64();
+
+    file->unmap(buf);
+
+    return uuid;
 }

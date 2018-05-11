@@ -12,10 +12,8 @@ class XFSDef:public QObject,SignatureDefInterface
     Q_PLUGIN_METADATA(IID SignatureDefInterface_iid FILE "xfsdef.json")
     Q_INTERFACES(SignatureDefInterface)
 public:
-
-    // SignatureDefInterface interface
-public:
     SignatureDetector *make();
+    void configure(QWidget *parent, QSettings *set);
 };
 
 #endif // XFSDEF_H

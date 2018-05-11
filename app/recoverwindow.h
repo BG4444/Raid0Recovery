@@ -59,6 +59,7 @@ public slots:
     void build();
     void roll();
     void fix();
+    void enableChanged(bool value);
 signals:
     void doBuild();
     void storeLog(const QString& message);

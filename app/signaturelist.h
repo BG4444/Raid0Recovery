@@ -25,10 +25,11 @@ public:
     };
 
     using Findings=std::multimap<const QPluginLoader*,findingInfo>;
+    const vDetectors& vDet;
 private:
     Findings findings;
 
-    const vDetectors& vDet;
+
 
     const QPluginLoader* instanceByInterface(const SignatureDefInterface* det);
 

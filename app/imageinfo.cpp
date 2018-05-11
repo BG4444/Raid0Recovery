@@ -12,7 +12,7 @@ void ImageInfo::setProgress(int nAlg, int value)
 void ImageInfo::setThreadCount(int count)
 {
     sem.reset(new QSemaphore(count));
-    progress.resize(count);
+    progress.resize(signatures->vDet.size());
     std::fill(progress.begin(),progress.end(),0);
     emit progressChanged();
 }
@@ -34,11 +34,11 @@ void ImageInfo::release()
 
 ImageInfo::ImageInfo(SignatureList *signatures,
                      storageSet::const_iterator storage,
-                     int threadCount,                     
+                     int threadCount,
                      QObject *parent)
     :
       QObject(parent),
-      progress(threadCount,0),
+      progress(signatures->vDet.size() , 0),
       sem(new QSemaphore(threadCount)),
       signatures(signatures),
       storage(storage),

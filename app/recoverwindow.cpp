@@ -8,6 +8,7 @@
 #include <QThreadPool>
 #include <imageslist.h>
 
+#include <QCheckBox>
 #include <signaturelist.h>
 
 #include <QMessageBox>
@@ -55,8 +56,30 @@ void RecoverWindow::loadPlugins()
         if(t)
         {
             storeLog(QString(tr("%1 plugin loaded")).arg(dirs[i].fileName()));
+
             const auto pos=signatureDetectors.size();
-            signatureDetectors.insert(std::make_pair(ldr,pos));
+
+
+            const auto twidget=new QWidget(ui->pluginsSettings);
+            const auto name=ldr->metaData().find("className").value().toString();
+
+            ui->pluginsSettings->insertTab(pos,twidget,name);
+
+            const auto vbox=new QVBoxLayout(twidget);
+            const auto confWidget=new QWidget(twidget);
+            vbox->addWidget(confWidget);
+
+            const auto enableCheck=new QCheckBox(tr("Enabled"),twidget);
+
+            enableCheck->setChecked(cfg->value(QString("%1_enabled").arg(name),true).toBool());
+
+            connect(enableCheck,&QCheckBox::clicked,this,&RecoverWindow::enableChanged);
+
+            vbox->addWidget(enableCheck);
+
+            t->configure(confWidget,cfg);
+
+            signatureDetectors.insert(std::make_pair(ldr,pluginInfo(pos,enableCheck)));
         }
     }
 }
@@ -197,43 +220,47 @@ void RecoverWindow::startScanning(const bool toggle)
 
                 emit storeLog(QString(tr("new search started for file %1")).arg(file->fileName()));
 
+                QPluginLoader* plugin=signatureDetectors[algorithm];
 
-                const auto def =  qobject_cast<SignatureDefInterface*> (signatureDetectors[algorithm] ->instance()) ->make();
+                const QCheckBox* isEnabled=signatureDetectors.find(plugin)->second.enabled;
 
-                connect(def,&SignatureDetector::found,cur->signatures.get(),static_cast<void (SignatureList::*)(const quint64)>(&SignatureList::registerSignature));
-
-
-
-                quint64 fsize=file->size();
-
-                auto signaler=ProgressSignaler::make(fsize,def);
-
-                connect(signaler,&ProgressSignaler::percent,[&cur,algorithm](const int percent)
-                                                        {
-                                                            cur->setProgress(algorithm, percent);
-                                                        }                          );
-
-                constexpr quint64 bufsz=(1<<20)*100;
-
-                const quint64 gran=def->granularity();
-
-                const quint64 bufcorrected= bufsz - (bufsz % gran);
-
-
-                for(quint64 pos = 0; const size_t buffermin=std::min(bufcorrected, fsize-pos ); )
+                if(isEnabled->isChecked())
                 {
-                    const auto buf=file->map(pos, buffermin);
 
-                    def->run(stopper,buf,buffermin,signaler,pos);
+                    const auto def =  qobject_cast<SignatureDefInterface*> (plugin->instance()) ->make();
 
-                    file->unmap(buf);
+                    connect(def,&SignatureDetector::found,cur->signatures.get(),static_cast<void (SignatureList::*)(const quint64)>(&SignatureList::registerSignature));
 
-                    pos+=buffermin;
 
+
+                    quint64 fsize=file->size();
+
+                    auto signaler=ProgressSignaler::make(fsize,def);
+
+                    connect(signaler,&ProgressSignaler::percent,[&cur,algorithm](const int percent)
+                                                            {
+                                                                cur->setProgress(algorithm, percent);
+                                                            }                          );
+
+                    constexpr quint64 bufsz=(1<<20)*100;
+
+                    const quint64 gran=def->granularity();
+
+                    const quint64 bufcorrected= bufsz - (bufsz % gran); //buffer size
+
+
+                    for(quint64 pos = 0; const quint64 buffermin=std::min(bufcorrected, fsize-pos ); pos+=buffermin)
+                    {
+                        const auto buf=file->map(pos, buffermin);
+
+                        def->run(stopper,buf,buffermin,signaler,pos);
+
+                        file->unmap(buf);
+                    }
+
+
+                    def->deleteLater();
                 }
-
-
-                def->deleteLater();
 
                 workDone=true;
                 allDone=false;
@@ -401,5 +428,20 @@ void RecoverWindow::fix()
 
         glue.reset(new FileGlue(imgs->size(),newPersistent));
     }
+}
+
+void RecoverWindow::enableChanged(bool value)
+{
+    auto box=qobject_cast<QCheckBox*>(sender());
+    ASSERT(box);
+    const auto pos=std::find_if(signatureDetectors.begin(),signatureDetectors.end(),[box](vDetectors::value_type& cur)
+    {
+        return cur.second.enabled==box;
+    }
+    );
+    ASSERT(pos!=signatureDetectors.end());
+    QPluginLoader* ldr=pos->first;
+    const auto name=ldr->metaData().find("className").value().toString();
+    cfg->setValue(QString("%1_enabled").arg(name),value);
 }
 

@@ -41,3 +41,8 @@ QVariant vDetectors::data(const QModelIndex &index, int role) const
             return QVariant();
     }
 }
+
+pluginInfo::pluginInfo(int id, QCheckBox *enabled):id(id),enabled(enabled)
+{
+
+}

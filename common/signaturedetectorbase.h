@@ -6,16 +6,15 @@
 
 class ProgressSignaler;
 
+using vSign=std::vector<uchar>;
+
 class SignatureDetectorBase:public SignatureDetector
 {
-    std::vector<uchar> sign;    
+    vSign sign;
 public:
-    SignatureDetectorBase(const SignatureDefInterface *parent, const std::vector<uchar>& sign);
+    SignatureDetectorBase(const SignatureDefInterface *parent, const vSign& sign);
     void search(const std::atomic<bool>& stopper, const uchar *base, const quint64 size, ProgressSignaler *sgn, const quint64 ofs);
     virtual void onFound(const quint64 offset);
-
-    // SignatureDetector interface
-public:
     quint64 granularity();
 };
 

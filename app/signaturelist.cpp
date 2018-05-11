@@ -88,8 +88,9 @@ QVariant SignatureList::data(const QModelIndex& index, int role ) const
                      def->deleteLater();
                      return ret;
                 }
-            }
-            return QVariant();
+                default:
+                    return QVariant();
+            }            
         }
         default:
             return QVariant();
@@ -172,7 +173,7 @@ QDataStream& operator <<(QDataStream &dev, const SignatureList &lst)
     for(const auto& i:lst.findings)
     {
         QPluginLoader* plg= const_cast<QPluginLoader*>(i.first);
-        dev << lst.vDet.find(plg)->second << static_cast<qulonglong>(i.second.offset);
+        dev << lst.vDet.find(plg)->second.id << static_cast<qulonglong>(i.second.offset);
     }
     return dev;
 }

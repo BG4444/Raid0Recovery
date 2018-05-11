@@ -5,8 +5,16 @@
 #include <QAbstractListModel>
 
 class QPluginLoader;
+class QCheckBox;
 
-using vPlugins=std::map<QPluginLoader  *,int>;
+struct pluginInfo
+{
+    int id;
+    QCheckBox* enabled;
+    pluginInfo(int id,QCheckBox *enabled);
+};
+
+using vPlugins=std::map<QPluginLoader  *,pluginInfo>;
 
 vPlugins::const_iterator operator+(vPlugins::const_iterator it,const int count);
 

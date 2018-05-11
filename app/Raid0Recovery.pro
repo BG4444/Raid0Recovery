@@ -52,7 +52,8 @@ SOURCES += \
     fileglue.cpp \
     raid0recoveryapp.cpp \
     ../common/progresssignaler.cpp \
-    findingsforcompare.cpp
+    findingsforcompare.cpp \
+    ../common/qprefixedsettings.cpp
 
 HEADERS += \
         recoverwindow.h \
@@ -67,7 +68,8 @@ HEADERS += \
     fileglue.h \
     raid0recoveryapp.h \
     ../common/progresssignaler.h \
-    findingsforcompare.h
+    findingsforcompare.h \
+    ../common/qprefixedsettings.h
 
 FORMS += \
         recoverwindow.ui

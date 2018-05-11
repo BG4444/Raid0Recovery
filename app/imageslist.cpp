@@ -339,7 +339,7 @@ QDataStream &operator <<(QDataStream &dev, const ImagesList &lst)
     {
         for(const auto&j:lst.vDetect)
         {
-            if(j.second==int(i))
+            if(j.second.id==int(i))
             {
                 const QPluginLoader* plg=j.first;
                 dev << plg->metaData().find("className").value().toString();
